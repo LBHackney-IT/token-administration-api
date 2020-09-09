@@ -51,11 +51,6 @@ namespace TokenAdministrationApi.V1.Boundary.Requests
         /// <example>
         /// 2020-05-15
         /// </example>
-        [Required]
-        public DateTime DateRequested { get; set; }
-        /// <example>
-        /// 2020-05-15
-        /// </example>
         [ExpiryDateValidationAttribute(ErrorMessage = "Token expiry date should be a future date")]
         public DateTime? ExpiresAt { get; set; }
     }
