@@ -4,19 +4,19 @@ setup:
 
 .PHONY: build
 build:
-	docker-compose build base-api
+	docker-compose build TokenAdministrationApi
 
 .PHONY: serve
 serve:
-	docker-compose build base-api && docker-compose up base-api
+	docker-compose build TokenAdministrationApi && docker-compose up TokenAdministrationApi
 
 .PHONY: shell
 shell:
-	docker-compose run base-api bash
+	docker-compose run TokenAdministrationApi bash
 
 .PHONY: test
 test:
-	docker-compose up test-database & docker-compose build base-api-test && docker-compose up base-api-test
+	docker-compose up test-database & docker-compose build TokenAdministrationApi-test && docker-compose up TokenAdministrationApi-test
 
 .PHONY: lint
 lint:
