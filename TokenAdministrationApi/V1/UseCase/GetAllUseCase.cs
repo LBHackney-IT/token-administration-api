@@ -8,8 +8,8 @@ namespace TokenAdministrationApi.V1.UseCase
     //TODO: Rename class name and interface name to reflect the entity they are representing eg. GetAllClaimantsUseCase
     public class GetAllUseCase : IGetAllUseCase
     {
-        private readonly IExampleGateway _gateway;
-        public GetAllUseCase(IExampleGateway gateway)
+        private readonly ITokensGateway _gateway;
+        public GetAllUseCase(ITokensGateway gateway)
         {
             _gateway = gateway;
         }

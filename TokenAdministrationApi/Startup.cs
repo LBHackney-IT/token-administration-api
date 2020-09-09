@@ -120,7 +120,7 @@ namespace TokenAdministrationApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
-            services.AddScoped<IExampleGateway, ExampleGateway>();
+            services.AddScoped<ITokensGateway, TokensGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
