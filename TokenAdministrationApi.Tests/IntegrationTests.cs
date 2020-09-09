@@ -25,10 +25,6 @@ namespace TokenAdministrationApi.Tests
             var npgsqlCommand = _connection.CreateCommand();
             npgsqlCommand.CommandText = "SET deadlock_timeout TO 30";
             npgsqlCommand.ExecuteNonQuery();
-
-            _builder = new DbContextOptionsBuilder();
-            _builder.UseNpgsql(_connection);
-
         }
 
         [SetUp]
@@ -36,6 +32,9 @@ namespace TokenAdministrationApi.Tests
         {
             _factory = new MockWebApplicationFactory<TStartup>(_connection);
             Client = _factory.CreateClient();
+
+            _builder = new DbContextOptionsBuilder();
+            _builder.UseNpgsql(ConnectionString.TestDatabase());
             DatabaseContext = new TokenDatabaseContext(_builder.Options);
             DatabaseContext.Database.EnsureCreated();
             _transaction = DatabaseContext.Database.BeginTransaction();
@@ -48,6 +47,7 @@ namespace TokenAdministrationApi.Tests
             _factory.Dispose();
             _transaction.Rollback();
             _transaction.Dispose();
+            _connection.Close();
         }
     }
 }

@@ -31,8 +31,7 @@ namespace TokenAdministrationApi
 
         public IConfiguration Configuration { get; }
         private static List<ApiVersionDescription> _apiVersions { get; set; }
-        //TODO update the below to the name of your API
-        private const string ApiName = "Your API Name";
+        private const string ApiName = "Token Administration API";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public static void ConfigureServices(IServiceCollection services)
@@ -126,6 +125,8 @@ namespace TokenAdministrationApi
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddScoped<IGetAllUseCase, GetAllUseCase>();
+            services.AddScoped<IPostTokenUseCase, PostTokenUseCase>();
+            services.AddScoped<IGenerateJwtUseCase, GenerateJwtUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
