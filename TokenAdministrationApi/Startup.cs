@@ -125,7 +125,7 @@ namespace TokenAdministrationApi
 
         private static void RegisterUseCases(IServiceCollection services)
         {
-            services.AddScoped<IGetAllUseCase, GetAllUseCase>();
+            services.AddScoped<IGetAllUseCase, GetAllTokensUseCase>();
             services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
         }
 

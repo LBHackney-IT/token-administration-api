@@ -6,10 +6,10 @@ using TokenAdministrationApi.V1.UseCase.Interfaces;
 namespace TokenAdministrationApi.V1.UseCase
 {
     //TODO: Rename class name and interface name to reflect the entity they are representing eg. GetAllClaimantsUseCase
-    public class GetAllUseCase : IGetAllUseCase
+    public class GetAllTokensUseCase : IGetAllUseCase
     {
         private readonly IExampleGateway _gateway;
-        public GetAllUseCase(IExampleGateway gateway)
+        public GetAllTokensUseCase(IExampleGateway gateway)
         {
             _gateway = gateway;
         }

@@ -14,14 +14,14 @@ namespace TokenAdministrationApi.Tests.V1.UseCase
     public class GetAllUseCaseTests
     {
         private Mock<IExampleGateway> _mockGateway;
-        private GetAllUseCase _classUnderTest;
+        private GetAllTokensUseCase _classUnderTest;
         private Fixture _fixture;
 
         [SetUp]
         public void SetUp()
         {
             _mockGateway = new Mock<IExampleGateway>();
-            _classUnderTest = new GetAllUseCase(_mockGateway.Object);
+            _classUnderTest = new GetAllTokensUseCase(_mockGateway.Object);
             _fixture = new Fixture();
         }
 
