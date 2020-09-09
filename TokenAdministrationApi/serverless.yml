@@ -15,8 +15,7 @@ provider:
           rateLimit: 100
 
 package:
-# TODO: Rename zipfile in build.sh and build.cmd to match this
-  artifact: ./bin/release/netcoreapp3.1/your-api-name.zip
+  artifact: ./bin/release/netcoreapp3.1/token-administration-api.zip
 
 functions:
   TokenAdministrationApi:
@@ -24,8 +23,8 @@ functions:
     handler: TokenAdministrationApi::TokenAdministrationApi.LambdaEntryPoint::FunctionHandlerAsync
     role: lambdaExecutionRole
     environment:
-# TODO: Create ssm variables for this API's postgres mirror then rename TokenAdministrationApi below to match api name
-      CONNECTION_STRING: Host=${ssm:/TokenAdministrationApi/${self:provider.stage}/postgres-hostname};Port=${ssm:/TokenAdministrationApi/${self:provider.stage}/postgres-port};Database=TokenAdministrationApi-mirror;Username=${ssm:/TokenAdministrationApi/${self:provider.stage}/postgres-username};Password=${ssm:/TokenAdministrationApi/${self:provider.stage}/postgres-password}
+      CONNECTION_STRING: Host=${ssm:/api-auth-token-generator/${self:provider.stage}/postgres-hostname};Port=${ssm:/api-auth-token-generator/${self:provider.stage}/postgres-port};Database=auth_token_generator_db;Username=${ssm:/api-auth-token-generator/${self:provider.stage}/postgres-username};Password=${ssm:/api-auth-token-generator/${self:provider.stage}/postgres-password}
+      jwtSecret: ${ssm:/api-auth-token-generator/${self:provider.stage}/token-secret}
     events:
       - http:
           path: /{proxy+}
