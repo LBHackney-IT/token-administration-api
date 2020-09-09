@@ -3,10 +3,8 @@ using TokenAdministrationApi.V1.Domain;
 
 namespace TokenAdministrationApi.V1.Gateways
 {
-    public interface IExampleGateway
+    public interface ITokensGateway
     {
-        Entity GetEntityById(int id);
-
-        List<Entity> GetAll();
+        List<AuthToken> GetAll();
     }
 }
