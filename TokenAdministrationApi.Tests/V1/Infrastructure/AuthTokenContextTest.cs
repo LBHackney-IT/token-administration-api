@@ -2,6 +2,7 @@ using System.Linq;
 using TokenAdministrationApi.Tests.V1.Helper;
 using TokenAdministrationApi.V1.Infrastructure;
 using NUnit.Framework;
+using FluentAssertions;
 
 namespace TokenAdministrationApi.Tests.V1.Infrastructure
 {
@@ -11,14 +12,16 @@ namespace TokenAdministrationApi.Tests.V1.Infrastructure
         [Test]
         public void CanGetADatabaseEntity()
         {
-            var databaseEntity = DatabaseEntityHelper.CreateDatabaseEntity();
+            //remove any record that might be left in the table
+            DatabaseContext.RemoveRange(DatabaseContext.Tokens);
+            var databaseEntity = AuthTokenDatabaseEntityHelper.CreateDatabaseEntity();
 
             DatabaseContext.Add(databaseEntity);
             DatabaseContext.SaveChanges();
 
-            var result = DatabaseContext.DatabaseEntities.ToList().FirstOrDefault();
+            var result = DatabaseContext.Tokens.ToList().FirstOrDefault();
 
-            Assert.AreEqual(result, databaseEntity);
+            result.Should().Be(databaseEntity);
         }
     }
 }

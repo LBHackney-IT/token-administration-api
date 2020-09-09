@@ -13,14 +13,14 @@ namespace TokenAdministrationApi.Tests.V1.UseCase
 {
     public class GetAllUseCaseTests
     {
-        private Mock<IExampleGateway> _mockGateway;
+        private Mock<ITokensGateway> _mockGateway;
         private GetAllUseCase _classUnderTest;
         private Fixture _fixture;
 
         [SetUp]
         public void SetUp()
         {
-            _mockGateway = new Mock<IExampleGateway>();
+            _mockGateway = new Mock<ITokensGateway>();
             _classUnderTest = new GetAllUseCase(_mockGateway.Object);
             _fixture = new Fixture();
         }
@@ -28,7 +28,7 @@ namespace TokenAdministrationApi.Tests.V1.UseCase
         [Test]
         public void GetsAllFromTheGateway()
         {
-            var stubbedEntities = _fixture.CreateMany<Entity>().ToList();
+            var stubbedEntities = _fixture.CreateMany<AuthToken>().ToList();
             _mockGateway.Setup(x => x.GetAll()).Returns(stubbedEntities);
 
             var expectedResponse = new ResponseObjectList { ResponseObjects = stubbedEntities.ToResponse() };
