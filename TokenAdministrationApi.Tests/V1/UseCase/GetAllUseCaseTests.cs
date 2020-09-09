@@ -28,7 +28,7 @@ namespace TokenAdministrationApi.Tests.V1.UseCase
         [Test]
         public void GetsAllFromTheGateway()
         {
-            var stubbedEntities = _fixture.CreateMany<Entity>().ToList();
+            var stubbedEntities = _fixture.CreateMany<AuthToken>().ToList();
             _mockGateway.Setup(x => x.GetAll()).Returns(stubbedEntities);
 
             var expectedResponse = new ResponseObjectList { ResponseObjects = stubbedEntities.ToResponse() };

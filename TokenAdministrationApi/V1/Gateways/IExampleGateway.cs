@@ -5,8 +5,6 @@ namespace TokenAdministrationApi.V1.Gateways
 {
     public interface IExampleGateway
     {
-        Entity GetEntityById(int id);
-
-        List<Entity> GetAll();
+        List<AuthToken> GetAll();
     }
 }

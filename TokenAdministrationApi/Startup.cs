@@ -114,7 +114,7 @@ namespace TokenAdministrationApi
         {
             var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 
-            services.AddDbContext<DatabaseContext>(
+            services.AddDbContext<TokenDatabaseContext>(
                 opt => opt.UseNpgsql(connectionString));
         }
 
@@ -126,7 +126,6 @@ namespace TokenAdministrationApi
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddScoped<IGetAllUseCase, GetAllUseCase>();
-            services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -5,15 +5,20 @@ namespace TokenAdministrationApi.V1.Factories
 {
     public static class EntityFactory
     {
-        public static Entity ToDomain(this DatabaseEntity databaseEntity)
+        public static AuthToken ToDomain(this AuthTokens token, string apiEndpointName, string apiName,
+          string consumerType)
         {
-            //TODO: Map the rest of the fields in the domain object.
-            // More information on this can be found here https://github.com/LBHackney-IT/lbh-TokenAdministrationApi/wiki/Factory-object-mappings
-
-            return new Entity
+            return new AuthToken
             {
-                Id = databaseEntity.Id,
-                CreatedAt = databaseEntity.CreatedAt,
+                Id = token.Id,
+                ApiEndpointName = apiEndpointName,
+                ApiName = apiName,
+                HttpMethodType = token.HttpMethodType,
+                ConsumerName = token.ConsumerName,
+                ConsumerType = consumerType,
+                Environment = token.Environment,
+                ExpirationDate = token.ExpirationDate,
+                Enabled = token.Enabled
             };
         }
     }

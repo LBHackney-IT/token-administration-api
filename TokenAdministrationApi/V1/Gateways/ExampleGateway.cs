@@ -8,23 +8,16 @@ namespace TokenAdministrationApi.V1.Gateways
     //TODO: Rename to match the data source that is being accessed in the gateway eg. MosaicGateway
     public class ExampleGateway : IExampleGateway
     {
-        private readonly DatabaseContext _databaseContext;
+        private readonly TokenDatabaseContext _databaseContext;
 
-        public ExampleGateway(DatabaseContext databaseContext)
+        public ExampleGateway(TokenDatabaseContext databaseContext)
         {
             _databaseContext = databaseContext;
         }
 
-        public Entity GetEntityById(int id)
+        public List<AuthToken> GetAll()
         {
-            var result = _databaseContext.DatabaseEntities.Find(id);
-
-            return result?.ToDomain();
-        }
-
-        public List<Entity> GetAll()
-        {
-            return new List<Entity>();
+            return new List<AuthToken>();
         }
     }
 }
