@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TokenAdministrationApi.V1.Boundary.Request;
+using TokenAdministrationApi.V1.Boundary.Requests;
 using TokenAdministrationApi.V1.Boundary.Response;
 using TokenAdministrationApi.V1.Controllers;
 using TokenAdministrationApi.V1.Domain;
@@ -18,13 +19,15 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
     public class TokenAdministrationControllerTests
     {
         private TokenAdministrationApiController _classUnderTest;
+        private Mock<IPostTokenUseCase> _mockPostTokenUseCase;
         private Mock<IGetAllTokensUseCase> _mockGetAllTokensUseCase;
 
         [SetUp]
         public void Setup()
         {
             _mockGetAllTokensUseCase = new Mock<IGetAllTokensUseCase>();
-            _classUnderTest = new TokenAdministrationApiController(_mockGetAllTokensUseCase.Object);
+            _mockPostTokenUseCase = new Mock<IPostTokenUseCase>();
+            _classUnderTest = new TokenAdministrationApiController(_mockGetAllTokensUseCase.Object, _mockPostTokenUseCase.Object);
         }
         [Test]
         public void EnsureControllerListTokensMethodCallsGetAllTokensUseCase()
@@ -68,6 +71,37 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
 
             result.Should().NotBeNull();
             result.Value.Should().Be(expectedResponse);
+        }
+        [Test]
+        public void EnsureControllerPostMethodCallsPostTokenUseCase()
+        {
+            var response = new GenerateTokenResponse();
+            _mockPostTokenUseCase.Setup(x => x.Execute(It.IsAny<TokenRequestObject>())).Returns(response);
+            _classUnderTest.GenerateToken(It.IsAny<TokenRequestObject>());
+
+            _mockPostTokenUseCase.Verify(x => x.Execute(It.IsAny<TokenRequestObject>()), Times.Once);
+        }
+
+        [Test]
+        public void ControllerPostMethodShouldReturnResponseOfTypeGenerateTokenResponse()
+        {
+            var response = new GenerateTokenResponse();
+            _mockPostTokenUseCase.Setup(x => x.Execute(It.IsAny<TokenRequestObject>())).Returns(response);
+            var result = _classUnderTest.GenerateToken(It.IsAny<TokenRequestObject>()) as CreatedAtActionResult;
+
+            result.Should().NotBeNull();
+            result.Value.Should().BeOfType<GenerateTokenResponse>();
+        }
+
+        [Test]
+        public void ControllerPostMethodShouldReturn201StatusCode()
+        {
+            var response = new GenerateTokenResponse();
+            _mockPostTokenUseCase.Setup(x => x.Execute(It.IsAny<TokenRequestObject>())).Returns(response);
+            var result = _classUnderTest.GenerateToken(It.IsAny<TokenRequestObject>()) as CreatedAtActionResult;
+
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(201);
         }
     }
 }
