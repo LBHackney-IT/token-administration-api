@@ -26,4 +26,20 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.7.2-preview-10803222715" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="terraform\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="terraform\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="terraform\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="terraform\**" />
+  </ItemGroup>
+
 </Project>
