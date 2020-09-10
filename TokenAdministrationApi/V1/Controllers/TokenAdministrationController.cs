@@ -9,15 +9,13 @@ using System;
 namespace TokenAdministrationApi.V1.Controllers
 {
     [ApiController]
-    //TODO: Rename to match the APIs endpoint
-    [Route("api/v1/residents")]
+    [Route("api/v1/tokens")]
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    //TODO: rename class to match the API name
     public class TokenAdministrationApiController : BaseController
     {
-        private readonly GetAllTokensUseCase _getAllTokensUseCase;
-        public TokenAdministrationApiController(GetAllTokensUseCase getAllTokensUseCase)
+        private readonly IGetAllTokensUseCase _getAllTokensUseCase;
+        public TokenAdministrationApiController(IGetAllTokensUseCase getAllTokensUseCase)
         {
             _getAllTokensUseCase = getAllTokensUseCase;
         }
@@ -26,19 +24,11 @@ namespace TokenAdministrationApi.V1.Controllers
         /// Returns a list of all token records in the database with the optional filtering flag 'enabled'
         /// </summary>
         /// <response code="200">Returns a list of all token records</response>
-        /// <response code="400">Invalid Query Parameter.</response>
-        [ProducesResponseType(typeof(ResponseObjectList), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(TokensListResponse), StatusCodes.Status200OK)]
         [HttpGet]
         public IActionResult ListTokens([FromQuery] GetTokensRequest request)
         {
-            try
-            {
-                return Ok(_getAllTokensUseCase.Execute(request));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            return Ok(_getAllTokensUseCase.Execute(request));
         }
     }
 }

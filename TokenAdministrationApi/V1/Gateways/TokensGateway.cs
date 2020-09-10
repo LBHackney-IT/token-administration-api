@@ -1,11 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using TokenAdministrationApi.V1.Domain;
 using TokenAdministrationApi.V1.Factories;
 using TokenAdministrationApi.V1.Infrastructure;
 
 namespace TokenAdministrationApi.V1.Gateways
 {
-    //TODO: Rename to match the data source that is being accessed in the gateway eg. MosaicGateway
     public class TokensGateway : ITokensGateway
     {
         private readonly TokenDatabaseContext _databaseContext;
@@ -15,9 +15,27 @@ namespace TokenAdministrationApi.V1.Gateways
             _databaseContext = databaseContext;
         }
 
-        public List<AuthToken> GetAll()
+        public List<AuthToken> GetAllTokens(bool? enabled)
         {
-            return new List<AuthToken>();
+            var tokenRecords = enabled != null ?
+                _databaseContext.Tokens.Where(x => x.Enabled == enabled).ToList() : _databaseContext.Tokens.ToList();
+
+            var tokenRecordsWithLookupValues = tokenRecords
+              .Select(GetLookupValues)
+              .ToList();
+
+            return tokenRecordsWithLookupValues;
+        }
+
+        private AuthToken GetLookupValues(AuthTokens tokenRecord)
+        {
+            var api = _databaseContext.ApiNameLookups.FirstOrDefault(x => x.Id == tokenRecord.ApiLookupId);
+
+            var apiEndpoint = _databaseContext.ApiEndpointNameLookups.FirstOrDefault(x => x.Id == tokenRecord.ApiEndpointNameLookupId);
+
+            var consumerType = _databaseContext.ConsumerTypeLookups.FirstOrDefault(x => x.Id == tokenRecord.ConsumerTypeLookupId);
+
+            return tokenRecord.ToDomain(apiEndpoint.ApiEndpointName, api.ApiName, consumerType.TypeName);
         }
     }
 }

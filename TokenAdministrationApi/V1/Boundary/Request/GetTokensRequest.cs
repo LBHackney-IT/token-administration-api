@@ -10,6 +10,6 @@ namespace TokenAdministrationApi.V1.Boundary.Request
         /// <example>
         /// true
         /// </example>
-        public bool Enabled { get; set; }
+        public bool? Enabled { get; set; }
     }
 }

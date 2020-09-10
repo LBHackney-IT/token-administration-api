@@ -1,4 +1,5 @@
 using AutoFixture;
+using System;
 using TokenAdministrationApi.V1.Domain;
 using TokenAdministrationApi.V1.Infrastructure;
 
@@ -29,6 +30,42 @@ namespace TokenAdministrationApi.Tests.V1.Helper
                 ExpirationDate = entity.ExpirationDate,
                 RequestedBy = entity.RequestedBy,
                 Enabled = entity.Enabled
+            };
+        }
+        public static AuthToken AddTokenRecordToTheDatabase(bool? enabled, TokenDatabaseContext context)
+        {
+            var fixture = new Fixture();
+            var api = fixture.Build<ApiNameLookup>().Create();
+            context.Add(api);
+
+            var apiEndpoint = fixture.Build<ApiEndpointNameLookup>()
+                .With(x => x.ApiLookupId, api.Id).Create();
+            context.Add(apiEndpoint);
+
+            var consumerType = fixture.Build<ConsumerTypeLookup>().Create();
+            context.Add(consumerType);
+
+            var tokenData = fixture.Build<AuthTokens>()
+                .With(x => x.ApiEndpointNameLookupId, apiEndpoint.Id)
+                .With(x => x.ApiLookupId, api.Id)
+                .With(x => x.ConsumerTypeLookupId, consumerType.Id)
+                .With(x => x.ExpirationDate, DateTime.MaxValue.Date)
+                .With(x => x.Enabled, enabled != null ? enabled : false)
+                .Create();
+            context.Add(tokenData);
+
+            context.SaveChanges();
+            return new AuthToken
+            {
+                ApiEndpointName = apiEndpoint.ApiEndpointName,
+                HttpMethodType = tokenData.HttpMethodType,
+                ApiName = api.ApiName,
+                ConsumerType = consumerType.TypeName,
+                ConsumerName = tokenData.ConsumerName,
+                Environment = tokenData.Environment,
+                ExpirationDate = tokenData.ExpirationDate,
+                Enabled = tokenData.Enabled,
+                Id = tokenData.Id
             };
         }
     }
