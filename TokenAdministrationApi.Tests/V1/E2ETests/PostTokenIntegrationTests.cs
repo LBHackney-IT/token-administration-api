@@ -30,7 +30,6 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
                 ApiName = _faker.Random.Int(0, 10),
                 HttpMethodType = "GET",
                 AuthorizedBy = _faker.Person.Email,
-                DateRequested = DateTime.Now,
                 Environment = _faker.Random.AlphaNumeric(5),
                 RequestedBy = _faker.Person.Email
             };
@@ -86,7 +85,6 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
                 ApiName = _faker.Random.Int(0, 10),
                 HttpMethodType = "GET",
                 AuthorizedBy = _faker.Person.Email,
-                DateRequested = DateTime.Now,
                 Environment = _faker.Random.AlphaNumeric(5),
                 RequestedBy = _faker.Person.Email
             };
@@ -108,7 +106,6 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
                 ApiName = _faker.Random.Int(0, 10),
                 HttpMethodType = "GET",
                 AuthorizedBy = _faker.Person.Email,
-                DateRequested = DateTime.Now,
                 Environment = _faker.Random.AlphaNumeric(5),
                 RequestedBy = _faker.Person.Email
             };
@@ -131,7 +128,6 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
                 ApiName = _faker.Random.Int(0, 10),
                 HttpMethodType = "TEST",
                 AuthorizedBy = _faker.Person.Email,
-                DateRequested = DateTime.Now,
                 Environment = _faker.Random.AlphaNumeric(5),
                 RequestedBy = _faker.Person.Email
             };
