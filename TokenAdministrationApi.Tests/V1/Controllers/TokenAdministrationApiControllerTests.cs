@@ -20,7 +20,7 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
         {
             _mockPostTokenUseCase = new Mock<IPostTokenUseCase>();
             _getAllUseCase = new Mock<IGetAllUseCase>();
-            _classUnderTest = new TokenAdministrationApiController( _getAllUseCase.Object, _mockPostTokenUseCase.Object);
+            _classUnderTest = new TokenAdministrationApiController(_getAllUseCase.Object, _mockPostTokenUseCase.Object);
         }
 
         [Test]
