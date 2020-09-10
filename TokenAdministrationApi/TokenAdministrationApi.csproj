@@ -17,7 +17,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="4.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="4.1.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.7" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.4.1" />
@@ -25,21 +25,4 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.3" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.7.2-preview-10803222715" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="terraform\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Remove="terraform\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="terraform\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Remove="terraform\**" />
-  </ItemGroup>
-
 </Project>
