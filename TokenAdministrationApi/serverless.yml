@@ -1,4 +1,4 @@
-service: your-api-name
+service: token-administration-api
 provider:
   name: aws
   runtime: dotnetcore3.1
