@@ -8,5 +8,6 @@ namespace TokenAdministrationApi.V1.Gateways
     {
         List<AuthToken> GetAllTokens(bool? enabled);
         int GenerateToken(TokenRequestObject tokenRequestObject);
+        int? UpdateToken(int tokenId, bool enabled);
     }
 }

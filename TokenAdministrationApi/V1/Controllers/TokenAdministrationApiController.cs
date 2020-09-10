@@ -4,8 +4,8 @@ using TokenAdministrationApi.V1.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TokenAdministrationApi.V1.Boundary.Requests;
-using TokenAdministrationApi.V1.Domain;
 using TokenAdministrationApi.V1.Boundary.Request;
+using TokenAdministrationApi.V1.Domain.Exceptions;
 
 namespace TokenAdministrationApi.V1.Controllers
 {
@@ -17,10 +17,14 @@ namespace TokenAdministrationApi.V1.Controllers
     {
         private readonly IGetAllTokensUseCase _getAllTokensUseCase;
         private readonly IPostTokenUseCase _postTokenUseCase;
-        public TokenAdministrationApiController(IGetAllTokensUseCase getAllTokensUseCase, IPostTokenUseCase postTokenUseCase)
+        private readonly IUpdateTokenValidityUseCase _updateTokenValidity;
+
+        public TokenAdministrationApiController(IGetAllTokensUseCase getAllTokensUseCase, IPostTokenUseCase postTokenUseCase,
+            IUpdateTokenValidityUseCase updateTokenValidity)
         {
             _getAllTokensUseCase = getAllTokensUseCase;
             _postTokenUseCase = postTokenUseCase;
+            _updateTokenValidity = updateTokenValidity;
         }
 
         /// <summary>
@@ -58,6 +62,22 @@ namespace TokenAdministrationApi.V1.Controllers
             {
                 return StatusCode(500, "There was a problem generating a JWT token");
             }
+        }
+
+        [HttpPatch]
+        [Route("{tokenId}")]
+        public IActionResult UpdateToken(int tokenId, [FromBody] UpdateTokenRequest request)
+        {
+            try
+            {
+                _updateTokenValidity.Execute(tokenId, request);
+            }
+            catch (TokenRecordNotFoundException)
+            {
+                return NotFound("A token for this ID could not be found");
+            }
+
+            return NoContent();
         }
     }
 }

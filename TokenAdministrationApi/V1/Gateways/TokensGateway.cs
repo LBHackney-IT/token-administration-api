@@ -67,5 +67,14 @@ namespace TokenAdministrationApi.V1.Gateways
 
             return tokenToInsert.Id;
         }
+
+        public int? UpdateToken(int tokenId, bool enabled)
+        {
+            var token = _databaseContext.Tokens.Find(tokenId);
+            if (token == null) return null;
+            token.Enabled = enabled;
+            _databaseContext.SaveChanges();
+            return token.Id;
+        }
     }
 }

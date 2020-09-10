@@ -13,7 +13,7 @@ using TokenAdministrationApi.V1.Boundary.Response;
 
 namespace TokenAdministrationApi.Tests.V1.E2ETests
 {
-    public class PostTokenIntegrationTests : IntegrationTestsPost<Startup>
+    public class PostTokenIntegrationTests : IntegrationTests<Startup>
     {
         private readonly Faker _faker = new Faker();
 
