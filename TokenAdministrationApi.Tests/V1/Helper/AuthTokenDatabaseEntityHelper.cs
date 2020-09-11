@@ -7,11 +7,30 @@ namespace TokenAdministrationApi.Tests.V1.Helper
 {
     public static class AuthTokenDatabaseEntityHelper
     {
-        public static AuthTokens CreateDatabaseEntity()
+        public static AuthTokens CreateDatabaseEntity(TokenDatabaseContext context)
         {
-            var entity = new Fixture().Create<AuthTokens>();
+            //insert lookup values (FK constraints)
+            var fixture = new Fixture();
+            var api = fixture.Build<ApiNameLookup>().Create();
+            context.Add(api);
+            context.SaveChanges();
 
-            return CreateDatabaseEntityFrom(entity);
+            var apiEndpoint = fixture.Build<ApiEndpointNameLookup>()
+                .With(x => x.ApiLookupId, api.Id).Create();
+            context.Add(apiEndpoint);
+
+            var consumerType = fixture.Build<ConsumerTypeLookup>().Create();
+            context.Add(consumerType);
+            context.SaveChanges();
+
+            var tokenData = fixture.Build<AuthTokens>()
+                .With(x => x.ApiEndpointNameLookupId, apiEndpoint.Id)
+                .With(x => x.ApiLookupId, api.Id)
+                .With(x => x.ConsumerTypeLookupId, consumerType.Id)
+                .With(x => x.ExpirationDate, DateTime.MaxValue.Date)
+                .Create();
+
+            return CreateDatabaseEntityFrom(tokenData);
         }
 
         public static AuthTokens CreateDatabaseEntityFrom(AuthTokens entity)
@@ -37,6 +56,7 @@ namespace TokenAdministrationApi.Tests.V1.Helper
             var fixture = new Fixture();
             var api = fixture.Build<ApiNameLookup>().Create();
             context.Add(api);
+            context.SaveChanges();
 
             var apiEndpoint = fixture.Build<ApiEndpointNameLookup>()
                 .With(x => x.ApiLookupId, api.Id).Create();
@@ -44,6 +64,7 @@ namespace TokenAdministrationApi.Tests.V1.Helper
 
             var consumerType = fixture.Build<ConsumerTypeLookup>().Create();
             context.Add(consumerType);
+            context.SaveChanges();
 
             var tokenData = fixture.Build<AuthTokens>()
                 .With(x => x.ApiEndpointNameLookupId, apiEndpoint.Id)

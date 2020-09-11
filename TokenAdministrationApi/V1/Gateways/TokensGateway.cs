@@ -23,11 +23,15 @@ namespace TokenAdministrationApi.V1.Gateways
             var tokenRecords = enabled != null ?
                 _databaseContext.Tokens.Where(x => x.Enabled == enabled).ToList() : _databaseContext.Tokens.ToList();
 
-            var tokenRecordsWithLookupValues = tokenRecords
-              .Select(GetLookupValues)
-              .ToList();
+            if (tokenRecords != null && tokenRecords.Count > 0)
+            {
+                var tokenRecordsWithLookupValues = tokenRecords
+                  .Select(GetLookupValues)
+                  .ToList();
 
-            return tokenRecordsWithLookupValues;
+                return tokenRecordsWithLookupValues;
+            }
+            return new List<AuthToken>();
         }
 
         private AuthToken GetLookupValues(AuthTokens tokenRecord)

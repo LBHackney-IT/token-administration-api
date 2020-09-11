@@ -8,6 +8,8 @@ using NUnit.Framework;
 using TokenAdministrationApi.V1.Infrastructure;
 using TokenAdministrationApi.V1.Boundary.Requests;
 using TokenAdministrationApi.Tests.V1.Helper;
+using TokenAdministrationApi.V1.Domain;
+using System.Collections.Generic;
 
 namespace TokenAdministrationApi.Tests.V1.Gateways
 {
@@ -75,9 +77,23 @@ namespace TokenAdministrationApi.Tests.V1.Gateways
         }
 
         [Test]
+        public void IfNoTokensMatchingCriteriaAreFoundShouldReturnEmptyListOfTokens()
+        {
+            var result = _classUnderTest.GetAllTokens(true);
+            result.Should().NotBeNull();
+            result.Count.Should().Be(0);
+            result.Should().BeEquivalentTo(new List<AuthToken>());
+        }
+
+        [Test]
         public void InsertingATokenRecordShouldReturnAnId()
         {
-            var tokenRequest = _fixture.Build<TokenRequestObject>().Create();
+            var tokenWithLookUpValues = AddTokenLookupValues();
+            var tokenRequest = _fixture.Build<TokenRequestObject>()
+                .With(x => x.ApiEndpoint, tokenWithLookUpValues.ApiEndpointNameLookupId)
+                .With(x => x.ApiName, tokenWithLookUpValues.ApiLookupId)
+                .With(x => x.ConsumerType, tokenWithLookUpValues.ConsumerTypeLookupId)
+                .Create();
 
             var response = _classUnderTest.GenerateToken(tokenRequest);
 
@@ -86,7 +102,12 @@ namespace TokenAdministrationApi.Tests.V1.Gateways
         [Test]
         public void InsertedRecordShouldBeInsertedOnceInTheDatabase()
         {
-            var tokenRequest = _fixture.Build<TokenRequestObject>().Create();
+            var tokenWithLookUpValues = AddTokenLookupValues();
+            var tokenRequest = _fixture.Build<TokenRequestObject>()
+                .With(x => x.ApiEndpoint, tokenWithLookUpValues.ApiEndpointNameLookupId)
+                .With(x => x.ApiName, tokenWithLookUpValues.ApiLookupId)
+                .With(x => x.ConsumerType, tokenWithLookUpValues.ConsumerTypeLookupId)
+                .Create();
 
             var response = _classUnderTest.GenerateToken(tokenRequest);
 
@@ -98,7 +119,12 @@ namespace TokenAdministrationApi.Tests.V1.Gateways
         [Test]
         public void InsertedRecordShouldBeInTheDatabase()
         {
-            var tokenRequest = _fixture.Build<TokenRequestObject>().Create();
+            var tokenWithLookUpValues = AddTokenLookupValues();
+            var tokenRequest = _fixture.Build<TokenRequestObject>()
+                .With(x => x.ApiEndpoint, tokenWithLookUpValues.ApiEndpointNameLookupId)
+                .With(x => x.ApiName, tokenWithLookUpValues.ApiLookupId)
+                .With(x => x.ConsumerType, tokenWithLookUpValues.ConsumerTypeLookupId)
+                .Create();
 
             var response = _classUnderTest.GenerateToken(tokenRequest);
 
@@ -116,6 +142,29 @@ namespace TokenAdministrationApi.Tests.V1.Gateways
             defaultRecordRetrieved.AuthorizedBy.Should().Be(tokenRequest.AuthorizedBy);
             defaultRecordRetrieved.ApiEndpointNameLookupId.Should().Be(tokenRequest.ApiEndpoint);
             defaultRecordRetrieved.ApiLookupId.Should().Be(tokenRequest.ApiName);
+        }
+
+        private AuthTokens AddTokenLookupValues()
+        {
+            var fixture = new Fixture();
+            var api = fixture.Build<ApiNameLookup>().Create();
+            DatabaseContext.Add(api);
+            DatabaseContext.SaveChanges();
+
+            var apiEndpoint = fixture.Build<ApiEndpointNameLookup>()
+                .With(x => x.ApiLookupId, api.Id).Create();
+            DatabaseContext.Add(apiEndpoint);
+
+            var consumerType = fixture.Build<ConsumerTypeLookup>().Create();
+            DatabaseContext.Add(consumerType);
+            DatabaseContext.SaveChanges();
+
+            return fixture.Build<AuthTokens>()
+                .With(x => x.ApiEndpointNameLookupId, apiEndpoint.Id)
+                .With(x => x.ApiLookupId, api.Id)
+                .With(x => x.ConsumerTypeLookupId, consumerType.Id)
+                .With(x => x.ExpirationDate, DateTime.MaxValue.Date)
+                .Create();
         }
     }
 }

@@ -13,8 +13,7 @@ using TokenAdministrationApi.V1.Boundary.Response;
 
 namespace TokenAdministrationApi.Tests.V1.E2ETests
 {
-    //For guidance on writing integration tests see the wiki page https://github.com/LBHackney-IT/lbh-base-api/wiki/Integration-Tests
-    public class PostTokenIntegrationTests : IntegrationTests<Startup>
+    public class PostTokenIntegrationTests : IntegrationTestsPost<Startup>
     {
         private readonly Faker _faker = new Faker();
 
