@@ -6,7 +6,7 @@ namespace TokenAdministrationApi.V1.Gateways
 {
     public interface ITokensGateway
     {
-        List<AuthToken> GetAll();
+        List<AuthToken> GetAllTokens(bool? enabled);
         int GenerateToken(TokenRequestObject tokenRequestObject);
     }
 }

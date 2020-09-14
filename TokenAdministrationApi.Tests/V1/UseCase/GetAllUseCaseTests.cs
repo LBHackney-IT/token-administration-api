@@ -8,34 +8,42 @@ using TokenAdministrationApi.V1.UseCase;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using TokenAdministrationApi.V1.Boundary.Request;
+using TokenAdministrationApi.V1.Infrastructure;
 
 namespace TokenAdministrationApi.Tests.V1.UseCase
 {
     public class GetAllUseCaseTests
     {
         private Mock<ITokensGateway> _mockGateway;
-        private GetAllUseCase _classUnderTest;
+        private GetAllTokensUseCase _classUnderTest;
         private Fixture _fixture;
 
         [SetUp]
         public void SetUp()
         {
             _mockGateway = new Mock<ITokensGateway>();
-            _classUnderTest = new GetAllUseCase(_mockGateway.Object);
+            _classUnderTest = new GetAllTokensUseCase(_mockGateway.Object);
             _fixture = new Fixture();
         }
-
         [Test]
-        public void GetsAllFromTheGateway()
+        public void EnsureGetAllTokensUseCaseCallsGateway()
         {
             var stubbedEntities = _fixture.CreateMany<AuthToken>().ToList();
-            _mockGateway.Setup(x => x.GetAll()).Returns(stubbedEntities);
+            _mockGateway.Setup(x => x.GetAllTokens(null)).Returns(stubbedEntities);
+            _classUnderTest.Execute(new GetTokensRequest { Enabled = null });
 
-            var expectedResponse = new ResponseObjectList { ResponseObjects = stubbedEntities.ToResponse() };
-
-            _classUnderTest.Execute().Should().BeEquivalentTo(expectedResponse);
+            _mockGateway.Verify(x => x.GetAllTokens(null), Times.Once);
         }
+        [Test]
+        public void GetsAllTokensFromTheGateway()
+        {
+            var stubbedEntities = _fixture.CreateMany<AuthToken>().ToList();
+            _mockGateway.Setup(x => x.GetAllTokens(null)).Returns(stubbedEntities);
 
-        //TODO: Add extra tests here for extra functionality added to the use case
+            var expectedResponse = new TokensListResponse { Tokens = stubbedEntities };
+
+            _classUnderTest.Execute(new GetTokensRequest { Enabled = null }).Should().BeEquivalentTo(expectedResponse);
+        }
     }
 }

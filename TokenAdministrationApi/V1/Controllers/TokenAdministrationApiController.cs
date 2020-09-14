@@ -1,11 +1,11 @@
 using System.Net.Mime;
-using ApiAuthTokenGenerator.V1.Boundary.Response;
 using TokenAdministrationApi.V1.Boundary.Response;
 using TokenAdministrationApi.V1.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TokenAdministrationApi.V1.Boundary.Requests;
 using TokenAdministrationApi.V1.Domain;
+using TokenAdministrationApi.V1.Boundary.Request;
 
 namespace TokenAdministrationApi.V1.Controllers
 {
@@ -15,25 +15,23 @@ namespace TokenAdministrationApi.V1.Controllers
     [ApiVersion("1.0")]
     public class TokenAdministrationApiController : BaseController
     {
-        private readonly IGetAllUseCase _getAllUseCase;
+        private readonly IGetAllTokensUseCase _getAllTokensUseCase;
         private readonly IPostTokenUseCase _postTokenUseCase;
-
-        public TokenAdministrationApiController(IGetAllUseCase getAllUseCase, IPostTokenUseCase postTokenUseCase)
+        public TokenAdministrationApiController(IGetAllTokensUseCase getAllTokensUseCase, IPostTokenUseCase postTokenUseCase)
         {
-            _getAllUseCase = getAllUseCase;
+            _getAllTokensUseCase = getAllTokensUseCase;
             _postTokenUseCase = postTokenUseCase;
         }
 
         /// <summary>
-        /// ...
+        /// Returns a list of all token records in the database with the optional filtering flag 'enabled'
         /// </summary>
-        /// <response code="200">...</response>
-        /// <response code="400">Invalid Query Parameter.</response>
-        [ProducesResponseType(typeof(ResponseObjectList), StatusCodes.Status200OK)]
+        /// <response code="200">Returns a list of all token records</response>
+        [ProducesResponseType(typeof(TokensListResponse), StatusCodes.Status200OK)]
         [HttpGet]
-        public IActionResult ListContacts()
+        public IActionResult ListTokens([FromQuery] GetTokensRequest request)
         {
-            return Ok(_getAllUseCase.Execute());
+            return Ok(_getAllTokensUseCase.Execute(request));
         }
 
         /// <summary>

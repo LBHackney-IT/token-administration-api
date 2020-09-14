@@ -1,4 +1,4 @@
-using ApiAuthTokenGenerator.V1.Boundary.Response;
+using TokenAdministrationApi.V1.Boundary.Response;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -13,13 +13,13 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
     {
         private TokenAdministrationApiController _classUnderTest;
         private Mock<IPostTokenUseCase> _mockPostTokenUseCase;
-        private Mock<IGetAllUseCase> _getAllUseCase;
+        private Mock<IGetAllTokensUseCase> _getAllUseCase;
 
         [SetUp]
         public void Setup()
         {
             _mockPostTokenUseCase = new Mock<IPostTokenUseCase>();
-            _getAllUseCase = new Mock<IGetAllUseCase>();
+            _getAllUseCase = new Mock<IGetAllTokensUseCase>();
             _classUnderTest = new TokenAdministrationApiController(_getAllUseCase.Object, _mockPostTokenUseCase.Object);
         }
 

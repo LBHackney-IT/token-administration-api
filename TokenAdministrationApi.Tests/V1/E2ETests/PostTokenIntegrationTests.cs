@@ -3,18 +3,17 @@ using System.Globalization;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using ApiAuthTokenGenerator.V1.Boundary.Response;
 using Bogus;
 using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using TokenAdministrationApi.Tests.V1.Helper;
 using TokenAdministrationApi.V1.Boundary.Requests;
+using TokenAdministrationApi.V1.Boundary.Response;
 
 namespace TokenAdministrationApi.Tests.V1.E2ETests
 {
-    //For guidance on writing integration tests see the wiki page https://github.com/LBHackney-IT/lbh-base-api/wiki/Integration-Tests
-    public class PostTokenIntegrationTests : IntegrationTests<Startup>
+    public class PostTokenIntegrationTests : IntegrationTestsPost<Startup>
     {
         private readonly Faker _faker = new Faker();
 

@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TokenAdministrationApi.V1.Infrastructure
 {
-    // There's an example of this in the wiki https://github.com/LBHackney-IT/lbh-base-api/wiki/DatabaseContext
     [Table("tokens")]
     public class AuthTokens
     {

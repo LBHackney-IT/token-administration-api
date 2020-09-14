@@ -1,5 +1,5 @@
 using System;
-using ApiAuthTokenGenerator.V1.Boundary.Response;
+using TokenAdministrationApi.V1.Boundary.Response;
 using Bogus;
 using FluentAssertions;
 using Moq;

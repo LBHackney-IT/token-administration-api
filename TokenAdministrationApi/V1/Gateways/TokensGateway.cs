@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Globalization;
 using TokenAdministrationApi.V1.Boundary.Requests;
 using TokenAdministrationApi.V1.Domain;
@@ -17,9 +18,31 @@ namespace TokenAdministrationApi.V1.Gateways
             _databaseContext = databaseContext;
         }
 
-        public List<AuthToken> GetAll()
+        public List<AuthToken> GetAllTokens(bool? enabled)
         {
+            var tokenRecords = enabled != null ?
+                _databaseContext.Tokens.Where(x => x.Enabled == enabled).ToList() : _databaseContext.Tokens.ToList();
+
+            if (tokenRecords != null && tokenRecords.Count > 0)
+            {
+                var tokenRecordsWithLookupValues = tokenRecords
+                  .Select(GetLookupValues)
+                  .ToList();
+
+                return tokenRecordsWithLookupValues;
+            }
             return new List<AuthToken>();
+        }
+
+        private AuthToken GetLookupValues(AuthTokens tokenRecord)
+        {
+            var api = _databaseContext.ApiNameLookups.FirstOrDefault(x => x.Id == tokenRecord.ApiLookupId);
+
+            var apiEndpoint = _databaseContext.ApiEndpointNameLookups.FirstOrDefault(x => x.Id == tokenRecord.ApiEndpointNameLookupId);
+
+            var consumerType = _databaseContext.ConsumerTypeLookups.FirstOrDefault(x => x.Id == tokenRecord.ConsumerTypeLookupId);
+
+            return tokenRecord.ToDomain(apiEndpoint.ApiEndpointName, api.ApiName, consumerType.TypeName);
         }
 
         public int GenerateToken(TokenRequestObject tokenRequestObject)
