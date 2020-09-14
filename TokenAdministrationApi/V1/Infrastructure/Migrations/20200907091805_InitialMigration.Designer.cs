@@ -10,7 +10,7 @@ using TokenAdministrationApi.V1.Infrastructure;
 namespace TokenAdministrationApi.V1.Infrastructure.Migrations
 {
     [DbContext(typeof(TokenDatabaseContext))]
-    [Migration("20200911140536_InitialMigration")]
+    [Migration("20200907091805_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
