@@ -5,7 +5,6 @@ namespace TokenAdministrationApi.V1.Infrastructure
 
     public class TokenDatabaseContext : DbContext
     {
-        //Guidance on the context class can be found here https://github.com/LBHackney-IT/lbh-base-api/wiki/DatabaseContext
         public TokenDatabaseContext(DbContextOptions options) : base(options)
         {
         }

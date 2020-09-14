@@ -1,11 +1,8 @@
-using System;
 using System.Data;
-using System.Linq;
 using System.Net.Http;
 using TokenAdministrationApi.V1.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using Npgsql;
 using NUnit.Framework;
 
