@@ -15,10 +15,13 @@ namespace TokenAdministrationApi.Tests.V1.Factories
             var fixture = new Fixture();
             var tokenData = fixture.Build<AuthTokens>().Create();
             var apiData = fixture.Build<ApiNameLookup>().Create();
+            tokenData.ApiLookup = apiData;
             var apiEndpointData = fixture.Build<ApiEndpointNameLookup>().Create();
+            tokenData.ApiEndpointNameLookup = apiEndpointData;
             var consumerData = fixture.Build<ConsumerTypeLookup>().Create();
+            tokenData.ConsumerTypeLookup = consumerData;
 
-            var response = tokenData.ToDomain(apiEndpointData.ApiEndpointName, apiData.ApiName, consumerData.TypeName);
+            var response = tokenData.ToDomain();
 
             response.ApiEndpointName.Should().Be(apiEndpointData.ApiEndpointName);
             response.ApiName.Should().Be(apiData.ApiName);

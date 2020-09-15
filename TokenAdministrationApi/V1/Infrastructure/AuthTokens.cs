@@ -14,10 +14,14 @@ namespace TokenAdministrationApi.V1.Infrastructure
         [Column("api_lookup_id")]
         [ForeignKey("api_lookup")]
         public int ApiLookupId { get; set; }
+        [ForeignKey("ApiLookupId")]
+        public ApiNameLookup ApiLookup { get; set; }
         [Required]
         [Column("api_endpoint_lookup_id")]
         [ForeignKey("api_endpoint_lookup")]
         public int ApiEndpointNameLookupId { get; set; }
+        [ForeignKey("ApiEndpointNameLookupId")]
+        public ApiEndpointNameLookup ApiEndpointNameLookup { get; set; }
         [Required]
         [MaxLength(6)]
         [Column("http_method_type")]
@@ -32,6 +36,8 @@ namespace TokenAdministrationApi.V1.Infrastructure
         [Column("consumer_type_lookup")]
         [ForeignKey("consumer_type_lookup")]
         public int ConsumerTypeLookupId { get; set; }
+        [ForeignKey("ConsumerTypeLookupId")]
+        public ConsumerTypeLookup ConsumerTypeLookup { get; set; }
         [Required]
         [Column("requested_by")]
         public string RequestedBy { get; set; }

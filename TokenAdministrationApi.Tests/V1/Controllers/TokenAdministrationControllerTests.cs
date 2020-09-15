@@ -7,11 +7,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Bogus;
 using TokenAdministrationApi.V1.Boundary.Request;
 using TokenAdministrationApi.V1.Boundary.Requests;
 using TokenAdministrationApi.V1.Boundary.Response;
 using TokenAdministrationApi.V1.Controllers;
 using TokenAdministrationApi.V1.Domain;
+using TokenAdministrationApi.V1.Domain.Exceptions;
 using TokenAdministrationApi.V1.UseCase.Interfaces;
 
 namespace TokenAdministrationApi.Tests.V1.Controllers
@@ -21,13 +23,18 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
         private TokenAdministrationApiController _classUnderTest;
         private Mock<IPostTokenUseCase> _mockPostTokenUseCase;
         private Mock<IGetAllTokensUseCase> _mockGetAllTokensUseCase;
+        private Mock<IUpdateTokenValidityUseCase> _updateTokenValidity;
+
 
         [SetUp]
         public void Setup()
         {
             _mockGetAllTokensUseCase = new Mock<IGetAllTokensUseCase>();
             _mockPostTokenUseCase = new Mock<IPostTokenUseCase>();
-            _classUnderTest = new TokenAdministrationApiController(_mockGetAllTokensUseCase.Object, _mockPostTokenUseCase.Object);
+            _updateTokenValidity = new Mock<IUpdateTokenValidityUseCase>();
+
+            _classUnderTest = new TokenAdministrationApiController(_mockGetAllTokensUseCase.Object, _mockPostTokenUseCase.Object,
+                _updateTokenValidity.Object);
         }
         [Test]
         public void EnsureControllerListTokensMethodCallsGetAllTokensUseCase()
@@ -102,6 +109,28 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
 
             result.Should().NotBeNull();
             result.StatusCode.Should().Be(201);
+        }
+
+        [Test]
+        public void UpdateTokenIfNoErrorThrownReturns204()
+        {
+            var faker = new Faker();
+            var tokenId = faker.Random.Int();
+            var enabled = faker.Random.Bool();
+            _updateTokenValidity.Setup(x => x.Execute(tokenId, new UpdateTokenRequest { Enabled = enabled }));
+            var result = _classUnderTest.UpdateToken(tokenId, new UpdateTokenRequest { Enabled = enabled }) as NoContentResult;
+
+            result.StatusCode.Should().Be(204);
+        }
+
+        [Test]
+        public void UpdateTokenIfRecordNotFoundExceptionThrownReturns404()
+        {
+            _updateTokenValidity.Setup(x => x.Execute(It.IsAny<int>(), It.IsAny<UpdateTokenRequest>()))
+                .Throws<TokenRecordNotFoundException>();
+            var result = _classUnderTest.UpdateToken(3, new UpdateTokenRequest { Enabled = true }) as ObjectResult;
+
+            result.StatusCode.Should().Be(404);
         }
     }
 }

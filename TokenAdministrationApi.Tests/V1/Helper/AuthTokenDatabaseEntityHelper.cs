@@ -54,28 +54,40 @@ namespace TokenAdministrationApi.Tests.V1.Helper
         public static AuthToken AddTokenRecordToTheDatabase(bool? enabled, TokenDatabaseContext context)
         {
             var fixture = new Fixture();
-            var api = fixture.Build<ApiNameLookup>().Create();
+            var api = fixture
+                .Build<ApiNameLookup>()
+                .Without(a => a.Id)
+                .Create();
             context.Add(api);
             context.SaveChanges();
 
-            var apiEndpoint = fixture.Build<ApiEndpointNameLookup>()
+            var apiEndpoint = fixture
+                .Build<ApiEndpointNameLookup>()
+                .Without(a => a.Id)
                 .With(x => x.ApiLookupId, api.Id).Create();
             context.Add(apiEndpoint);
 
-            var consumerType = fixture.Build<ConsumerTypeLookup>().Create();
+            var consumerType = fixture
+                .Build<ConsumerTypeLookup>()
+                .Without(a => a.Id)
+                .Create();
             context.Add(consumerType);
             context.SaveChanges();
 
             var tokenData = fixture.Build<AuthTokens>()
+                .Without(t => t.Id)
+                .Without(t => t.ApiLookup)
+                .Without(t => t.ApiEndpointNameLookup)
+                .Without(t => t.ConsumerTypeLookup)
                 .With(x => x.ApiEndpointNameLookupId, apiEndpoint.Id)
                 .With(x => x.ApiLookupId, api.Id)
                 .With(x => x.ConsumerTypeLookupId, consumerType.Id)
                 .With(x => x.ExpirationDate, DateTime.MaxValue.Date)
-                .With(x => x.Enabled, enabled != null ? enabled : false)
+                .With(x => x.Enabled, enabled ?? false)
                 .Create();
             context.Add(tokenData);
-
             context.SaveChanges();
+
             return new AuthToken
             {
                 ApiEndpointName = apiEndpoint.ApiEndpointName,
