@@ -144,6 +144,63 @@ namespace TokenAdministrationApi.Tests.V1.Gateways
             defaultRecordRetrieved.ApiLookupId.Should().Be(tokenRequest.ApiName);
         }
 
+        [Test]
+        public void UpdateTokenReturnsNullIfTokenDoesntExist()
+        {
+            var response = _classUnderTest.UpdateToken(3, false);
+            response.Should().BeNull();
+        }
+
+        [Test]
+        public void UpdateTokenWillChangeEnabledToTrue()
+        {
+            var token = _fixture.Create<AuthTokens>();
+            token.Enabled = false;
+            DatabaseContext.Tokens.Add(token);
+            DatabaseContext.SaveChanges();
+
+            _classUnderTest.UpdateToken(token.Id, true);
+            DatabaseContext.Tokens.Find(token.Id).Enabled.Should().BeTrue();
+        }
+
+        [Test]
+        public void UpdateTokenWillChangeEnabledToFalse()
+        {
+            var token = _fixture.Create<AuthTokens>();
+            token.Enabled = true;
+            DatabaseContext.Tokens.Add(token);
+            DatabaseContext.SaveChanges();
+
+            _classUnderTest.UpdateToken(token.Id, false);
+            DatabaseContext.Tokens.Find(token.Id).Enabled.Should().BeFalse();
+        }
+
+        [Test]
+        public void UpdateTokenWillReturnId()
+        {
+            var token = _fixture.Create<AuthTokens>();
+            token.Enabled = false;
+            DatabaseContext.Tokens.Add(token);
+            DatabaseContext.SaveChanges();
+
+            var response = _classUnderTest.UpdateToken(token.Id, true);
+            response.Should().Be(token.Id);
+        }
+
+        [Test]
+        public void UpdateTokenShouldNotChangeAnyOtherFields()
+        {
+            var token = _fixture.Create<AuthTokens>();
+            token.Enabled = false;
+            DatabaseContext.Tokens.Add(token);
+            DatabaseContext.SaveChanges();
+
+            _classUnderTest.UpdateToken(token.Id, true);
+
+            DatabaseContext.Tokens.Find(token.Id).Should()
+                .BeEquivalentTo(token, options => options.Excluding(x => x.Enabled));
+        }
+
         private AuthTokens AddTokenLookupValues()
         {
             var fixture = new Fixture();

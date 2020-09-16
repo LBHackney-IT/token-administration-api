@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore;
 using TokenAdministrationApi.V1.Boundary.Requests;
 using TokenAdministrationApi.V1.Domain;
 using TokenAdministrationApi.V1.Factories;
@@ -20,30 +21,19 @@ namespace TokenAdministrationApi.V1.Gateways
 
         public List<AuthToken> GetAllTokens(int limit, int cursor, bool? enabled)
         {
-            var tokenRecords = enabled != null ?
-                _databaseContext.Tokens.Where(x => x.Enabled == enabled).Where(x => x.Id > cursor).OrderBy(x => x.Id).Take(limit).ToList()
-                : _databaseContext.Tokens.Where(x => x.Id > cursor).OrderBy(x => x.Id).Take(limit).ToList();
+            var tokenRecords = _databaseContext.Tokens
+                .Where(x => enabled == null || x.Enabled == enabled)
+                .Where(x => x.Id > cursor)
+                .Include(x => x.ApiLookup)
+                .Include(x => x.ApiEndpointNameLookup)
+                .Include(x => x.ConsumerTypeLookup)
+                .OrderBy(x => x.Id)
+                .Take(limit)
+                .ToList();
 
-            if (tokenRecords != null && tokenRecords.Count > 0)
-            {
-                var tokenRecordsWithLookupValues = tokenRecords
-                  .Select(GetLookupValues)
-                  .ToList();
-
-                return tokenRecordsWithLookupValues;
-            }
-            return new List<AuthToken>();
-        }
-
-        private AuthToken GetLookupValues(AuthTokens tokenRecord)
-        {
-            var api = _databaseContext.ApiNameLookups.FirstOrDefault(x => x.Id == tokenRecord.ApiLookupId);
-
-            var apiEndpoint = _databaseContext.ApiEndpointNameLookups.FirstOrDefault(x => x.Id == tokenRecord.ApiEndpointNameLookupId);
-
-            var consumerType = _databaseContext.ConsumerTypeLookups.FirstOrDefault(x => x.Id == tokenRecord.ConsumerTypeLookupId);
-
-            return tokenRecord.ToDomain(apiEndpoint.ApiEndpointName, api.ApiName, consumerType.TypeName);
+            return tokenRecords
+                .Select(t => t.ToDomain())
+                .ToList();
         }
 
         public int GenerateToken(TokenRequestObject tokenRequestObject)
@@ -67,6 +57,15 @@ namespace TokenAdministrationApi.V1.Gateways
             _databaseContext.SaveChanges();
 
             return tokenToInsert.Id;
+        }
+
+        public int? UpdateToken(int tokenId, bool enabled)
+        {
+            var token = _databaseContext.Tokens.Find(tokenId);
+            if (token == null) return null;
+            token.Enabled = enabled;
+            _databaseContext.SaveChanges();
+            return token.Id;
         }
     }
 }

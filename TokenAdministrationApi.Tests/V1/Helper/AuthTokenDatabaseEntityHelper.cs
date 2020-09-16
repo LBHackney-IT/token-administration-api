@@ -75,11 +75,15 @@ namespace TokenAdministrationApi.Tests.V1.Helper
             context.SaveChanges();
 
             var tokenData = fixture.Build<AuthTokens>()
+                .Without(t => t.Id)
+                .Without(t => t.ApiLookup)
+                .Without(t => t.ApiEndpointNameLookup)
+                .Without(t => t.ConsumerTypeLookup)
                 .With(x => x.ApiLookupId, api.Id)
                 .With(x => x.ApiEndpointNameLookupId, apiEndpoint.Id)
                 .With(x => x.ConsumerTypeLookupId, consumerType.Id)
                 .With(x => x.ExpirationDate, DateTime.MaxValue.Date)
-                .With(x => x.Enabled, enabled != null ? enabled : false)
+                .With(x => x.Enabled, enabled ?? false)
                 .Create();
 
             if (id != 0)
@@ -87,8 +91,8 @@ namespace TokenAdministrationApi.Tests.V1.Helper
                 tokenData.Id = id;
             }
             context.Add(tokenData);
-
             context.SaveChanges();
+
             return new AuthToken
             {
                 ApiEndpointName = apiEndpoint.ApiEndpointName,

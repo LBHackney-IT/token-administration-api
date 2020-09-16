@@ -6,6 +6,7 @@ using Moq;
 using NUnit.Framework;
 using TokenAdministrationApi.V1.Boundary.Requests;
 using TokenAdministrationApi.V1.Domain;
+using TokenAdministrationApi.V1.Domain.Exceptions;
 using TokenAdministrationApi.V1.Gateways;
 using TokenAdministrationApi.V1.UseCase;
 using TokenAdministrationApi.V1.UseCase.Interfaces;
