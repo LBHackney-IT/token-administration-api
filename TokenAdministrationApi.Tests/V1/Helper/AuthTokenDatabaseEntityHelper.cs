@@ -1,4 +1,5 @@
 using AutoFixture;
+using Bogus;
 using System;
 using TokenAdministrationApi.V1.Domain;
 using TokenAdministrationApi.V1.Infrastructure;
@@ -7,6 +8,7 @@ namespace TokenAdministrationApi.Tests.V1.Helper
 {
     public static class AuthTokenDatabaseEntityHelper
     {
+        private static readonly Faker _faker = new Faker();
         public static AuthTokens CreateDatabaseEntity(TokenDatabaseContext context)
         {
             //insert lookup values (FK constraints)
@@ -51,28 +53,39 @@ namespace TokenAdministrationApi.Tests.V1.Helper
                 Enabled = entity.Enabled
             };
         }
-        public static AuthToken AddTokenRecordToTheDatabase(bool? enabled, TokenDatabaseContext context)
+        public static AuthToken AddTokenRecordToTheDatabase(bool? enabled, TokenDatabaseContext context, int id = 0)
         {
             var fixture = new Fixture();
-            var api = fixture.Build<ApiNameLookup>().Create();
+            var api = fixture.Build<ApiNameLookup>()
+                .With(x => x.Id, _faker.Random.Int())
+                .Create();
             context.Add(api);
             context.SaveChanges();
 
             var apiEndpoint = fixture.Build<ApiEndpointNameLookup>()
-                .With(x => x.ApiLookupId, api.Id).Create();
+                 .With(x => x.Id, _faker.Random.Int())
+                 .With(x => x.ApiLookupId, api.Id)
+                .Create();
             context.Add(apiEndpoint);
 
-            var consumerType = fixture.Build<ConsumerTypeLookup>().Create();
+            var consumerType = fixture.Build<ConsumerTypeLookup>()
+                .With(x => x.Id, _faker.Random.Int())
+                .Create();
             context.Add(consumerType);
             context.SaveChanges();
 
             var tokenData = fixture.Build<AuthTokens>()
-                .With(x => x.ApiEndpointNameLookupId, apiEndpoint.Id)
                 .With(x => x.ApiLookupId, api.Id)
+                .With(x => x.ApiEndpointNameLookupId, apiEndpoint.Id)
                 .With(x => x.ConsumerTypeLookupId, consumerType.Id)
                 .With(x => x.ExpirationDate, DateTime.MaxValue.Date)
                 .With(x => x.Enabled, enabled != null ? enabled : false)
                 .Create();
+
+            if (id != 0)
+            {
+                tokenData.Id = id;
+            }
             context.Add(tokenData);
 
             context.SaveChanges();

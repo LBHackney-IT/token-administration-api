@@ -18,10 +18,11 @@ namespace TokenAdministrationApi.V1.Gateways
             _databaseContext = databaseContext;
         }
 
-        public List<AuthToken> GetAllTokens(bool? enabled)
+        public List<AuthToken> GetAllTokens(int limit, int cursor, bool? enabled)
         {
             var tokenRecords = enabled != null ?
-                _databaseContext.Tokens.Where(x => x.Enabled == enabled).ToList() : _databaseContext.Tokens.ToList();
+                _databaseContext.Tokens.Where(x => x.Enabled == enabled).Where(x => x.Id > cursor).OrderBy(x => x.Id).Take(limit).ToList()
+                : _databaseContext.Tokens.Where(x => x.Id > cursor).OrderBy(x => x.Id).Take(limit).ToList();
 
             if (tokenRecords != null && tokenRecords.Count > 0)
             {

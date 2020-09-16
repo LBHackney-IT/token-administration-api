@@ -30,16 +30,16 @@ namespace TokenAdministrationApi.Tests.V1.UseCase
         public void EnsureGetAllTokensUseCaseCallsGateway()
         {
             var stubbedEntities = _fixture.CreateMany<AuthToken>().ToList();
-            _mockGateway.Setup(x => x.GetAllTokens(null)).Returns(stubbedEntities);
+            _mockGateway.Setup(x => x.GetAllTokens(20, 0, null)).Returns(stubbedEntities);
             _classUnderTest.Execute(new GetTokensRequest { Enabled = null });
 
-            _mockGateway.Verify(x => x.GetAllTokens(null), Times.Once);
+            _mockGateway.Verify(x => x.GetAllTokens(20, 0, null), Times.Once);
         }
         [Test]
         public void GetsAllTokensFromTheGateway()
         {
             var stubbedEntities = _fixture.CreateMany<AuthToken>().ToList();
-            _mockGateway.Setup(x => x.GetAllTokens(null)).Returns(stubbedEntities);
+            _mockGateway.Setup(x => x.GetAllTokens(20, 0, null)).Returns(stubbedEntities);
 
             var expectedResponse = new TokensListResponse { Tokens = stubbedEntities };
 
