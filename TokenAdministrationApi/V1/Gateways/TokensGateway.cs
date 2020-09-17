@@ -19,13 +19,16 @@ namespace TokenAdministrationApi.V1.Gateways
             _databaseContext = databaseContext;
         }
 
-        public List<AuthToken> GetAllTokens(bool? enabled)
+        public List<AuthToken> GetAllTokens(int limit, int cursor, bool? enabled)
         {
             var tokenRecords = _databaseContext.Tokens
                 .Where(x => enabled == null || x.Enabled == enabled)
+                .Where(x => x.Id > cursor)
                 .Include(x => x.ApiLookup)
                 .Include(x => x.ApiEndpointNameLookup)
                 .Include(x => x.ConsumerTypeLookup)
+                .OrderBy(x => x.Id)
+                .Take(limit)
                 .ToList();
 
             return tokenRecords

@@ -6,5 +6,6 @@ namespace TokenAdministrationApi.V1.Boundary.Response
     public class TokensListResponse
     {
         public List<AuthToken> Tokens { get; set; }
+        public string NextCursor { get; set; }
     }
 }

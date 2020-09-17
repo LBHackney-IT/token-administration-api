@@ -29,7 +29,7 @@ namespace TokenAdministrationApi.Tests.V1.Gateways
         {
             var token = AuthTokenDatabaseEntityHelper.AddTokenRecordToTheDatabase(null, DatabaseContext);
             var disabledToken = AuthTokenDatabaseEntityHelper.AddTokenRecordToTheDatabase(false, DatabaseContext);
-            var result = _classUnderTest.GetAllTokens(null);
+            var result = _classUnderTest.GetAllTokens(10, 0, null);
 
             result.Should().NotBeNull();
             result.Count.Should().Be(2);
@@ -58,7 +58,7 @@ namespace TokenAdministrationApi.Tests.V1.Gateways
         {
             AuthTokenDatabaseEntityHelper.AddTokenRecordToTheDatabase(true, DatabaseContext);
             AuthTokenDatabaseEntityHelper.AddTokenRecordToTheDatabase(false, DatabaseContext);
-            var result = _classUnderTest.GetAllTokens(false);
+            var result = _classUnderTest.GetAllTokens(10, 0, false);
 
             result.Should().NotBeNull();
             result.Count.Should().Be(1);
@@ -70,7 +70,7 @@ namespace TokenAdministrationApi.Tests.V1.Gateways
             AuthTokenDatabaseEntityHelper.AddTokenRecordToTheDatabase(true, DatabaseContext);
             AuthTokenDatabaseEntityHelper.AddTokenRecordToTheDatabase(true, DatabaseContext);
             AuthTokenDatabaseEntityHelper.AddTokenRecordToTheDatabase(false, DatabaseContext);
-            var result = _classUnderTest.GetAllTokens(true);
+            var result = _classUnderTest.GetAllTokens(10, 0, true);
 
             result.Should().NotBeNull();
             result.Count.Should().Be(2);
@@ -79,7 +79,7 @@ namespace TokenAdministrationApi.Tests.V1.Gateways
         [Test]
         public void IfNoTokensMatchingCriteriaAreFoundShouldReturnEmptyListOfTokens()
         {
-            var result = _classUnderTest.GetAllTokens(true);
+            var result = _classUnderTest.GetAllTokens(10, 0, true);
             result.Should().NotBeNull();
             result.Count.Should().Be(0);
             result.Should().BeEquivalentTo(new List<AuthToken>());

@@ -6,7 +6,7 @@ namespace TokenAdministrationApi.V1.Gateways
 {
     public interface ITokensGateway
     {
-        List<AuthToken> GetAllTokens(bool? enabled);
+        List<AuthToken> GetAllTokens(int limit, int cursor, bool? enabled);
         int GenerateToken(TokenRequestObject tokenRequestObject);
         int? UpdateToken(int tokenId, bool enabled);
     }
