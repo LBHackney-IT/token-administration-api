@@ -10,6 +10,7 @@ using TokenAdministrationApi.V1.Boundary.Requests;
 using TokenAdministrationApi.Tests.V1.Helper;
 using TokenAdministrationApi.V1.Domain;
 using System.Collections.Generic;
+using TokenAdministrationApi.V1.Domain.Exceptions;
 
 namespace TokenAdministrationApi.Tests.V1.Gateways
 {
@@ -201,6 +202,17 @@ namespace TokenAdministrationApi.Tests.V1.Gateways
                 .BeEquivalentTo(token, options => options.Excluding(x => x.Enabled));
         }
 
+        [Test]
+        public void InsertTokenShouldThrowLookupValueDoesNotExistExceptionIfLookupValueDoesNotExist()
+        {
+            var tokenRequest = _fixture.Build<TokenRequestObject>()
+                .With(x => x.ApiEndpoint, 999) //random number that does not exist
+                .Create();
+
+            Func<int> testDelegate = () => _classUnderTest.GenerateToken(tokenRequest);
+            testDelegate.Should().Throw<LookupValueDoesNotExistException>();
+
+        }
         private AuthTokens AddTokenLookupValues()
         {
             var fixture = new Fixture();

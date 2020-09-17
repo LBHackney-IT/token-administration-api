@@ -63,9 +63,9 @@ namespace TokenAdministrationApi.V1.Controllers
             {
                 return StatusCode(500, "There was a problem generating a JWT token");
             }
-            catch (DbUpdateException)
+            catch (LookupValueDoesNotExistException ex)
             {
-                return StatusCode(400, "One or more of the lookup ids provided is incorrect");
+                return StatusCode(400, $"One or more of the lookup ids provided is incorrect - {ex.Message}");
             }
         }
 

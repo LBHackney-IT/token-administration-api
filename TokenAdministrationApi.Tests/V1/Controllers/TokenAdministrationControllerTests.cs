@@ -132,5 +132,16 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
 
             result.StatusCode.Should().Be(404);
         }
+        [Test]
+        public void GenerateTokenMethodShouldReturn400IfGatewayThrowsLookupDoesNotExistException()
+        {
+            var errorMessage = "foreign key violation message";
+            _mockPostTokenUseCase.Setup(x => x.Execute(It.IsAny<TokenRequestObject>())).Throws(new LookupValueDoesNotExistException(errorMessage));
+            var result = _classUnderTest.GenerateToken(It.IsAny<TokenRequestObject>()) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(400);
+            result.Value.Should().Be("One or more of the lookup ids provided is incorrect - foreign key violation message");
+        }
     }
 }
