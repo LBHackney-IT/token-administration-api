@@ -7,6 +7,7 @@ using TokenAdministrationApi.V1.Boundary.Requests;
 using TokenAdministrationApi.V1.Domain;
 using TokenAdministrationApi.V1.Factories;
 using TokenAdministrationApi.V1.Infrastructure;
+using TokenAdministrationApi.V1.Domain.Exceptions;
 
 namespace TokenAdministrationApi.V1.Gateways
 {
@@ -53,9 +54,19 @@ namespace TokenAdministrationApi.V1.Gateways
                 Enabled = true
             };
 
-            _databaseContext.Tokens.Add(tokenToInsert);
-            _databaseContext.SaveChanges();
-
+            try
+            {
+                _databaseContext.Tokens.Add(tokenToInsert);
+                _databaseContext.SaveChanges();
+            }
+            catch (DbUpdateException ex)
+            {
+                //23503 error code = foreign_key_violation
+                if (ex.InnerException.GetType() == typeof(Npgsql.PostgresException) && (((Npgsql.PostgresException) ex.InnerException).SqlState == "23503"))
+                {
+                    throw new LookupValueDoesNotExistException(ex.InnerException.Message);
+                }
+            }
             return tokenToInsert.Id;
         }
 
