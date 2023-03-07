@@ -2,6 +2,7 @@ using TokenAdministrationApi.V1.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using NUnit.Framework;
+using System;
 
 namespace TokenAdministrationApi.Tests
 {
@@ -15,6 +16,8 @@ namespace TokenAdministrationApi.Tests
         [SetUp]
         public void RunBeforeAnyTests()
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
             var builder = new DbContextOptionsBuilder();
             builder.UseNpgsql(ConnectionString.TestDatabase());
             DatabaseContext = new TokenDatabaseContext(builder.Options);

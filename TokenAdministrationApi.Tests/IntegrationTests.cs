@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using NUnit.Framework;
+using System;
 
 namespace TokenAdministrationApi.Tests
 {
@@ -19,6 +20,8 @@ namespace TokenAdministrationApi.Tests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
             _connection = new NpgsqlConnection(ConnectionString.TestDatabase());
             _connection.Open();
             var npgsqlCommand = _connection.CreateCommand();
