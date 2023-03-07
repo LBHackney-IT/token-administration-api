@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace TokenAdministrationApi.Tests
 {
@@ -25,6 +26,8 @@ namespace TokenAdministrationApi.Tests
                 .UseStartup<Startup>();
             builder.ConfigureServices(services =>
             {
+                AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
                 var dbBuilder = new DbContextOptionsBuilder();
                 dbBuilder.UseNpgsql(_connection);
                 var context = new TokenDatabaseContext(dbBuilder.Options);

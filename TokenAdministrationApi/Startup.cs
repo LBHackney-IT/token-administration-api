@@ -36,9 +36,8 @@ namespace TokenAdministrationApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public static void ConfigureServices(IServiceCollection services)
         {
-            services
-                .AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            services.AddMvc();
+
             services.AddApiVersioning(o =>
             {
                 o.DefaultApiVersion = new ApiVersion(1, 0);
@@ -111,6 +110,8 @@ namespace TokenAdministrationApi
 
         private static void ConfigureDbContext(IServiceCollection services)
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
             var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 
             services.AddDbContext<TokenDatabaseContext>(
