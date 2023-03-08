@@ -54,9 +54,9 @@ module "postgres_db_staging" {
   environment_name = "staging"
   vpc_id = data.aws_vpc.staging_vpc.id
   db_engine = "postgres"
-  db_engine_version = "11.1"
+  db_engine_version = "11.16"
   db_identifier = "auth-token-generator-staging-db"
-  db_instance_class = "db.t2.micro"
+  db_instance_class = "db.t3.micro"
   db_name = "auth_token_generator_db"
   db_port  = 5102
   db_username = data.aws_ssm_parameter.auth_token_generator_postgres_username.value
