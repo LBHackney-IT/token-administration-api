@@ -63,3 +63,6 @@ tmp/
 
 .fake
 .ionide
+terraform/production/.terraform/
+terraform/staging/.terraform/
+*.hcl
