@@ -38,6 +38,21 @@ commands:
           root: *workspace_root
           paths:
             - .aws
+  preview-terraform:
+    description: "Previews terraform state changes"
+    parameters:
+      environment:
+        type: string
+    steps:
+      - *attach_workspace
+      - checkout
+      - run:
+          command: |
+            cd ./terraform/<<parameters.environment>>/
+            terraform get -update=true
+            terraform init
+            terraform plan
+          name: get, init, and plan
   terraform-init-then-apply:
     description: "Initializes and applies terraform configuration"
     parameters:
@@ -169,6 +184,21 @@ jobs:
     steps:
       - assume-role-and-persist-workspace:
           aws-account: $AWS_ACCOUNT_PRODUCTION
+  preview-terraform-development:
+    executor: docker-terraform
+    steps:
+      - preview-terraform:
+          environment: "development"
+  preview-terraform-staging:
+    executor: docker-terraform
+    steps:
+      - preview-terraform:
+          environment: "staging"
+  preview-terraform-production:
+    executor: docker-terraform
+    steps:
+      - preview-terraform:
+          environment: "production"
   terraform-init-and-apply-to-development:
     executor: docker-terraform
     steps:
@@ -260,9 +290,22 @@ workflows:
          filters:
            branches:
              only: master
+      - preview-terraform-staging:
+          requires:
+            - assume-role-staging
+          filters:
+            branches:
+              only: master
+      - permit-staging-terraform-release:
+          type: approval
+          requires:
+            - preview-terraform-staging
+          filters:
+            branches:
+              only: master
       - terraform-init-and-apply-to-staging:
          requires:
-           - assume-role-staging
+           - permit-staging-terraform-release
          filters:
            branches:
              only: master
@@ -280,14 +323,26 @@ workflows:
           filters:
             branches:
               only: master
-      - permit-production-terraform-release:
-          type: approval
-          requires:
-            - deploy-to-staging
       - assume-role-production:
           context: api-assume-role-production-context
           requires:
-              - permit-production-terraform-release
+              - deploy-to-staging
+          filters:
+            branches:
+              only: master
+      - preview-terraform-production:
+          requires:
+            - assume-role-production
+          filters:
+            branches:
+              only: master
+      - permit-production-terraform-release:
+          type: approval
+          requires:
+            - preview-terraform-production
+      - terraform-init-and-apply-to-production:
+          requires:
+            - permit-production-terraform-release
           filters:
             branches:
               only: master
@@ -298,16 +353,10 @@ workflows:
           filters:
             branches:
               only: master
-      - terraform-init-and-apply-to-production:
-          requires:
-            - assume-role-production
-          filters:
-            branches:
-              only: master
       - permit-production-release:
           type: approval
           requires:
-            - deploy-to-staging
+            - migrate-database-production
           filters:
             branches:
               only: master
