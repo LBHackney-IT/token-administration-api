@@ -32,7 +32,7 @@ terraform {
 /*    POSTGRES SET UP    */
 data "aws_vpc" "production_vpc" {  
   tags = {    
-    Name = "vpc-production-apis-production"  
+    Name = "apis-prod"  
     }
 }
 data "aws_subnet_ids" "production" {  
@@ -56,7 +56,7 @@ module "postgres_db_production" {
   environment_name = "production"
   vpc_id = data.aws_vpc.production_vpc.id
   db_engine = "postgres"
-  db_engine_version = "11.16"
+  db_engine_version = "11.22"
   db_identifier = "auth-token-generator-prod-db"
   db_instance_class = "db.t3.micro"
   db_name = "auth_token_generator_db"
