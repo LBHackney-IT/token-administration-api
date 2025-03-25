@@ -1,22 +1,22 @@
 .PHONY: setup
 setup:
-	docker-compose build
+	docker compose build
 
 .PHONY: build
 build:
-	docker-compose build TokenAdministrationApi
+	docker compose build token-administration-api
 
 .PHONY: serve
 serve:
-	docker-compose build TokenAdministrationApi && docker-compose up TokenAdministrationApi
+	docker compose build token-administration-api && docker compose up token-administration-api
 
 .PHONY: shell
 shell:
-	docker-compose run TokenAdministrationApi bash
+	docker compose run token-administration-api bash
 
 .PHONY: test
 test:
-	docker-compose up test-database & docker-compose build TokenAdministrationApi-test && docker-compose up TokenAdministrationApi-test
+	docker compose up test-database & docker compose build token-administration-api-test && docker compose up token-administration-api-test
 
 .PHONY: lint
 lint:

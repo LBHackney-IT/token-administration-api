@@ -17,7 +17,7 @@ namespace TokenAdministrationApi.Tests.V1.UseCase
         public void Setup()
         {
             _faker = new Faker();
-            _jwtSecret = _faker.Random.AlphaNumeric(20);
+            _jwtSecret = _faker.Random.AlphaNumeric(50);
             Environment.SetEnvironmentVariable("jwtSecret", _jwtSecret);
             _classUnderTest = new GenerateJwtUseCase();
         }
