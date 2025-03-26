@@ -1,6 +1,6 @@
-# INSTRUCTIONS: 
-# 1) ENSURE YOU POPULATE THE LOCALS 
-# 2) ENSURE YOU REPLACE ALL INPUT PARAMETERS, THAT CURRENTLY STATE 'ENTER VALUE', WITH VALID VALUES 
+# INSTRUCTIONS:
+# 1) ENSURE YOU POPULATE THE LOCALS
+# 2) ENSURE YOU REPLACE ALL INPUT PARAMETERS, THAT CURRENTLY STATE 'ENTER VALUE', WITH VALID VALUES
 # 3) YOUR CODE WOULD NOT COMPILE IF STEP NUMBER 2 IS NOT PERFORMED!
 # 4) ENSURE YOU CREATE A BUCKET FOR YOUR STATE FILE AND YOU ADD THE NAME BELOW - MAINTAINING THE STATE OF THE INFRASTRUCTURE YOU CREATE IS ESSENTIAL - FOR APIS, THE BUCKETS ALREADY EXIST
 # 5) THE VALUES OF THE COMMON COMPONENTS THAT YOU WILL NEED ARE PROVIDED IN THE COMMENTS
@@ -23,21 +23,21 @@ terraform {
     bucket  = "terraform-state-staging-apis"
     encrypt = true
     region  = "eu-west-2"
-    key     = "services/auth-token-generator-api/state" 
+    key     = "services/auth-token-generator-api/state"
   }
 }
 
 /*    POSTGRES SET UP    */
-data "aws_vpc" "staging_vpc" {  
-  tags = {    
-    Name = "apis-stg"  
+data "aws_vpc" "staging_vpc" {
+  tags = {
+    Name = "apis-stg"
     }
 }
-data "aws_subnet_ids" "staging" {  
-  vpc_id = data.aws_vpc.staging_vpc.id  
-  filter {    
-    name   = "tag:Type"    
-    values = ["private"]  
+data "aws_subnet_ids" "staging" {
+  vpc_id = data.aws_vpc.staging_vpc.id
+  filter {
+    name   = "tag:Type"
+    values = ["private"]
     }
 }
 
@@ -54,7 +54,7 @@ module "postgres_db_staging" {
   environment_name = "staging"
   vpc_id = data.aws_vpc.staging_vpc.id
   db_engine = "postgres"
-  db_engine_version = "11.16"
+  db_engine_version = "16.4"
   db_identifier = "auth-token-generator-staging-db"
   db_instance_class = "db.t3.micro"
   db_name = "auth_token_generator_db"
@@ -68,4 +68,8 @@ module "postgres_db_staging" {
   multi_az = false //only true if production deployment
   publicly_accessible = false
   project_name = "platform apis"
+  copy_to_snapshot = true
+  additional_tags = {
+    BackupPolicy = "Prod"
+  }
 }
