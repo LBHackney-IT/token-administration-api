@@ -70,6 +70,6 @@ module "postgres_db_staging" {
   project_name = "platform apis"
   copy_to_snapshot = true
   additional_tags = {
-    BackupPolicy = "Prod"
+    BackupPolicy = "Stg"
   }
 }
