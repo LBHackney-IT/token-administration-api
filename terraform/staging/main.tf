@@ -68,7 +68,7 @@ module "postgres_db_staging" {
   multi_az = false //only true if production deployment
   publicly_accessible = false
   project_name = "platform apis"
-  copy_to_snapshot = true
+  copy_tags_to_snapshot = true
   additional_tags = {
     BackupPolicy = "Stg"
   }
