@@ -57,6 +57,7 @@ module "postgres_db_production" {
   vpc_id = data.aws_vpc.production_vpc.id
   db_engine = "postgres"
   db_engine_version = "16.4"
+  db_allow_major_version_upgrade = true
   db_identifier = "auth-token-generator-prod-db"
   db_instance_class = "db.t3.micro"
   db_name = "auth_token_generator_db"
@@ -70,6 +71,7 @@ module "postgres_db_production" {
   multi_az = true
   publicly_accessible = false
   project_name = "platform apis"
+  deletion_protection = true
   copy_tags_to_snapshot = true
   additional_tags = {
     BackupPolicy = "Prod"
