@@ -317,6 +317,8 @@ workflows:
             branches:
               only: master
       - deploy-to-staging:
+          context:
+            - "Serverless Framework"
           requires:
             - assume-role-staging
             - migrate-database-staging
@@ -361,6 +363,8 @@ workflows:
             branches:
               only: master
       - deploy-to-production:
+          context:
+            - "Serverless Framework"
           requires:
             - permit-production-release
             - assume-role-production
