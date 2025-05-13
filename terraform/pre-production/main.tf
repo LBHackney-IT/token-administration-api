@@ -7,9 +7,7 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 locals {
-  environment      = "pre-production"
-  application_name = "auth token generator api"
-  parameter_store  = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
+  environment = "pre-production"
 }
 
 terraform {
@@ -22,7 +20,6 @@ terraform {
   }
 }
 
-/*    POSTGRES SET UP    */
 data "aws_vpc" "pre_production_vpc" {
   tags = {
     Name = "housing-pre-prod-pre-prod"
