@@ -184,6 +184,11 @@ jobs:
     steps:
       - assume-role-and-persist-workspace:
           aws-account: $AWS_ACCOUNT_PRODUCTION
+  assume-role-pre-production:
+    executor: docker-python
+    steps:
+      - assume-role-and-persist-workspace:
+          aws-account: $AWS_ACCOUNT_PRE_PRODUCTION
   preview-terraform-development:
     executor: docker-terraform
     steps:
@@ -199,6 +204,11 @@ jobs:
     steps:
       - preview-terraform:
           environment: "production"
+  terraform-init-and-plan-pre-production:
+    executor: docker-terraform
+    steps:
+      - preview-terraform:
+          environment: "pre-production"
   terraform-init-and-apply-to-development:
     executor: docker-terraform
     steps:
@@ -214,6 +224,11 @@ jobs:
     steps:
       - terraform-init-then-apply:
           environment: "production"
+  terraform-apply-pre-production:
+    executor: docker-terraform
+    steps:
+      - terraform-init-then-apply:
+          environment: "pre-production"
   deploy-to-development:
     executor: docker-dotnet
     steps:
@@ -229,6 +244,11 @@ jobs:
     steps:
       - deploy-lambda:
           stage: "production"
+  deploy-to-pre-production:
+    executor: docker-dotnet
+    steps:
+      - deploy-lambda:
+          stage: "pre-production"
   migrate-database-development:
     executor: docker-dotnet
     steps:
@@ -244,6 +264,11 @@ jobs:
     steps:
       - migrate-database:
           stage: "production"
+  migrate-database-pre-production:
+    executor: docker-dotnet
+    steps:
+      - migrate-database:
+          stage: "pre-production"
 
 workflows:
   check-and-deploy-development:
@@ -369,6 +394,73 @@ workflows:
             - permit-production-release
             - assume-role-production
             - migrate-database-production
+          filters:
+            branches:
+              only: master
+
+  deploy-terraform-pre-production:
+    jobs:
+      - permit-pre-production-terraform-workflow:
+          type: approval
+          filters:
+            branches:
+              only: master
+      - assume-role-pre-production:
+          context: api-assume-role-housing-pre-production-context
+          requires:
+            - permit-pre-production-terraform-workflow
+          filters:
+            branches:
+              only: master
+      - terraform-init-and-plan-pre-production:
+          requires:
+            - assume-role-pre-production
+          filters:
+            branches:
+              only: master
+      - permit-pre-production-terraform-deployment:
+          type: approval
+          requires:
+            - terraform-init-and-plan-pre-production
+          filters:
+            branches:
+              only: master
+      - terraform-apply-pre-production:
+          requires:
+            - permit-pre-production-terraform-deployment
+          filters:
+            branches:
+              only: master
+  
+  deploy-code-pre-production:
+    jobs:
+      - permit-pre-production-code-workflow:
+          type: approval
+          filters:
+            branches:
+              only: master
+      - build-and-test:
+          requires:
+            - permit-pre-production-code-workflow
+          filters:
+            branches:
+              only: master
+      - assume-role-pre-production:
+          context: api-assume-role-housing-pre-production-context
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              only: master
+      - migrate-database-pre-production:
+          requires:
+            - assume-role-pre-production
+          filters:
+            branches:
+              only: master
+      - deploy-to-pre-production:
+          requires:
+            - migrate-database-pre-production
           filters:
             branches:
               only: master
