@@ -5,14 +5,13 @@ provider:
   vpc: ${self:custom.vpc.${opt:stage}}
   stage: ${opt:stage}
   region: eu-west-2
-  apiKeys:
-    - secureAccess:
+  apiGateway:
+    apiKeys:
       - api-key-${self:service}-${self:provider.stage}
-  usagePlan:
-    - secureAccess:
-        throttle:
-          burstLimit: 200
-          rateLimit: 100
+    usagePlan:
+      throttle:
+        burstLimit: 200
+        rateLimit: 100
 
 package:
   artifact: ./bin/release/net8.0/token-administration-api.zip
