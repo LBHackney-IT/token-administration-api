@@ -459,6 +459,8 @@ workflows:
             branches:
               only: master
       - deploy-to-pre-production:
+          context:
+            - "Serverless Framework"
           requires:
             - migrate-database-pre-production
           filters:
