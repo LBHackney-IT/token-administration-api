@@ -183,7 +183,7 @@ jobs:
     executor: docker-python
     steps:
       - assume-role-and-persist-workspace:
-          aws-account: $AWS_ACCOUNT_PRODUCTION
+          aws-account: $AWS_ACCOUNT_DISASTER_RECOVERY
   assume-role-pre-production:
     executor: docker-python
     steps:
@@ -271,98 +271,98 @@ jobs:
           stage: "pre-production"
 
 workflows:
-  check-and-deploy-development:
-    jobs:
-      - check-code-formatting
-      - build-and-test
-      - assume-role-development:
-          context: api-assume-role-development-context
-          requires:
-            - build-and-test
-          filters:
-            branches:
-              only: development
-      - terraform-init-and-apply-to-development:
-          requires:
-            - assume-role-development
-          filters:
-            branches:
-              only: development
-      - migrate-database-development:
-          requires:
-            - terraform-init-and-apply-to-development
-            - assume-role-development
-          filters:
-            branches:
-              only: development
-      - deploy-to-development:
-          requires:
-            - assume-role-development
-            - migrate-database-development
-          filters:
-            branches:
-              only: development
+  # check-and-deploy-development:
+  #   jobs:
+  #     - check-code-formatting
+  #     - build-and-test
+  #     - assume-role-development:
+  #         context: api-assume-role-development-context
+  #         requires:
+  #           - build-and-test
+  #         filters:
+  #           branches:
+  #             only: development
+  #     - terraform-init-and-apply-to-development:
+  #         requires:
+  #           - assume-role-development
+  #         filters:
+  #           branches:
+  #             only: development
+  #     - migrate-database-development:
+  #         requires:
+  #           - terraform-init-and-apply-to-development
+  #           - assume-role-development
+  #         filters:
+  #           branches:
+  #             only: development
+  #     - deploy-to-development:
+  #         requires:
+  #           - assume-role-development
+  #           - migrate-database-development
+  #         filters:
+  #           branches:
+  #             only: development
   check-and-deploy-staging-and-production:
     jobs:
       - build-and-test:
         filters:
           branches:
             only: master
-      - assume-role-staging:
-         context: api-assume-role-staging-context
-         requires:
-             - build-and-test
-         filters:
-           branches:
-             only: master
-      - preview-terraform-staging:
-          requires:
-            - assume-role-staging
-          filters:
-            branches:
-              only: master
-      - permit-staging-terraform-release:
-          type: approval
-          requires:
-            - preview-terraform-staging
-          filters:
-            branches:
-              only: master
-      - terraform-init-and-apply-to-staging:
-         requires:
-           - permit-staging-terraform-release
-         filters:
-           branches:
-             only: master
-      - migrate-database-staging:
-         requires:
-           - terraform-init-and-apply-to-staging
-           - assume-role-staging
-         filters:
-            branches:
-              only: master
-      - deploy-to-staging:
-          context:
-            - "Serverless Framework"
-          requires:
-            - assume-role-staging
-            - migrate-database-staging
-          filters:
-            branches:
-              only: master
+      # - assume-role-staging:
+      #    context: api-assume-role-staging-context
+      #    requires:
+      #        - build-and-test
+      #    filters:
+      #      branches:
+      #        only: master
+      # - preview-terraform-staging:
+      #     requires:
+      #       - assume-role-staging
+      #     filters:
+      #       branches:
+      #         only: master
+      # - permit-staging-terraform-release:
+      #     type: approval
+      #     requires:
+      #       - preview-terraform-staging
+      #     filters:
+      #       branches:
+      #         only: master
+      # - terraform-init-and-apply-to-staging:
+      #    requires:
+      #      - permit-staging-terraform-release
+      #    filters:
+      #      branches:
+      #        only: master
+      # - migrate-database-staging:
+      #    requires:
+      #      - terraform-init-and-apply-to-staging
+      #      - assume-role-staging
+      #    filters:
+      #       branches:
+      #         only: master
+      # - deploy-to-staging:
+      #     context:
+      #       - "Serverless Framework"
+      #     requires:
+      #       - assume-role-staging
+      #       - migrate-database-staging
+      #     filters:
+      #       branches:
+      #         only: master
       - assume-role-production:
-          context: api-assume-role-production-context
+          context: api-assume-role-disaster-recovery-context
           requires:
-              - deploy-to-staging
+              - build-and-test
           filters:
             branches:
-              only: master
+              only: dr-testing
       - preview-terraform-production:
           requires:
             - assume-role-production
           filters:
             branches:
-              only: master
+              only: dr-testing
       - permit-production-terraform-release:
           type: approval
           requires:
@@ -372,21 +372,21 @@ workflows:
             - permit-production-terraform-release
           filters:
             branches:
-              only: master
+              only: dr-testing
       - migrate-database-production:
           requires:
             - terraform-init-and-apply-to-production
             - assume-role-production
           filters:
             branches:
-              only: master
+              only: dr-testing
       - permit-production-release:
           type: approval
           requires:
             - migrate-database-production
           filters:
             branches:
-              only: master
+              only: dr-testing
       - deploy-to-production:
           context:
             - "Serverless Framework"
@@ -396,73 +396,73 @@ workflows:
             - migrate-database-production
           filters:
             branches:
-              only: master
+              only: dr-testing
 
-  deploy-terraform-pre-production:
-    jobs:
-      - permit-pre-production-terraform-workflow:
-          type: approval
-          filters:
-            branches:
-              only: master
-      - assume-role-pre-production:
-          context: api-assume-role-housing-pre-production-context
-          requires:
-            - permit-pre-production-terraform-workflow
-          filters:
-            branches:
-              only: master
-      - terraform-init-and-plan-pre-production:
-          requires:
-            - assume-role-pre-production
-          filters:
-            branches:
-              only: master
-      - permit-pre-production-terraform-deployment:
-          type: approval
-          requires:
-            - terraform-init-and-plan-pre-production
-          filters:
-            branches:
-              only: master
-      - terraform-apply-pre-production:
-          requires:
-            - permit-pre-production-terraform-deployment
-          filters:
-            branches:
-              only: master
+  # deploy-terraform-pre-production:
+  #   jobs:
+  #     - permit-pre-production-terraform-workflow:
+  #         type: approval
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - assume-role-pre-production:
+  #         context: api-assume-role-housing-pre-production-context
+  #         requires:
+  #           - permit-pre-production-terraform-workflow
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - terraform-init-and-plan-pre-production:
+  #         requires:
+  #           - assume-role-pre-production
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - permit-pre-production-terraform-deployment:
+  #         type: approval
+  #         requires:
+  #           - terraform-init-and-plan-pre-production
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - terraform-apply-pre-production:
+  #         requires:
+  #           - permit-pre-production-terraform-deployment
+  #         filters:
+  #           branches:
+  #             only: master
   
-  deploy-code-pre-production:
-    jobs:
-      - permit-pre-production-code-workflow:
-          type: approval
-          filters:
-            branches:
-              only: master
-      - build-and-test:
-          requires:
-            - permit-pre-production-code-workflow
-          filters:
-            branches:
-              only: master
-      - assume-role-pre-production:
-          context: api-assume-role-housing-pre-production-context
-          requires:
-            - build-and-test
-          filters:
-            branches:
-              only: master
-      - migrate-database-pre-production:
-          requires:
-            - assume-role-pre-production
-          filters:
-            branches:
-              only: master
-      - deploy-to-pre-production:
-          context:
-            - "Serverless Framework"
-          requires:
-            - migrate-database-pre-production
-          filters:
-            branches:
-              only: master
+  # deploy-code-pre-production:
+  #   jobs:
+  #     - permit-pre-production-code-workflow:
+  #         type: approval
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - build-and-test:
+  #         requires:
+  #           - permit-pre-production-code-workflow
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - assume-role-pre-production:
+  #         context: api-assume-role-housing-pre-production-context
+  #         requires:
+  #           - build-and-test
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - migrate-database-pre-production:
+  #         requires:
+  #           - assume-role-pre-production
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - deploy-to-pre-production:
+  #         context:
+  #           - "Serverless Framework"
+  #         requires:
+  #           - migrate-database-pre-production
+  #         filters:
+  #           branches:
+  #             only: master
