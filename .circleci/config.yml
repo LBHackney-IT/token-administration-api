@@ -304,10 +304,10 @@ workflows:
   #             only: development
   check-and-deploy-staging-and-production:
     jobs:
-      - build-and-test:
-        filters:
-          branches:
-            only: master
+      # - build-and-test:
+      #   filters:
+      #     branches:
+      #       only: master
       # - assume-role-staging:
       #    context: api-assume-role-staging-context
       #    requires:
@@ -352,8 +352,8 @@ workflows:
       #         only: master
       - assume-role-production:
           context: api-assume-role-disaster-recovery-context
-          requires:
-              - build-and-test
+          # requires:
+          #     - build-and-test
           filters:
             branches:
               only: dr-testing
