@@ -22,7 +22,7 @@ locals {
 
 terraform {
   backend "s3" {
-    bucket  = "terraform-state-production-apis"
+    bucket  = "terraform-state-disaster-recovery"
     encrypt = true
     region  = "eu-west-2"
     key     = "services/auth-token-generator-api/state"
