@@ -56,7 +56,7 @@ module "postgres_db_production" {
   environment_name = "production"
   vpc_id = data.aws_vpc.production_vpc.id
   db_engine = "postgres"
-  db_engine_version = "16.4"
+  db_engine_version = "16.8"
   db_allow_major_version_upgrade = true
   db_identifier = "auth-token-generator-prod-db"
   db_instance_class = "db.t3.micro"
