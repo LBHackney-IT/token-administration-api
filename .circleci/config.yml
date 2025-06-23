@@ -357,22 +357,22 @@ workflows:
           filters:
             branches:
               only: dr-testing
-      - preview-terraform-production:
-          requires:
-            - assume-role-production
-          filters:
-            branches:
-              only: dr-testing
-      - permit-production-terraform-release:
-          type: approval
-          requires:
-            - preview-terraform-production
-      - terraform-init-and-apply-to-production:
-          requires:
-            - permit-production-terraform-release
-          filters:
-            branches:
-              only: dr-testing
+      # - preview-terraform-production:
+      #     requires:
+      #       - assume-role-production
+      #     filters:
+      #       branches:
+      #         only: dr-testing
+      # - permit-production-terraform-release:
+      #     type: approval
+      #     requires:
+      #       - preview-terraform-production
+      # - terraform-init-and-apply-to-production:
+      #     requires:
+      #       - permit-production-terraform-release
+      #     filters:
+      #       branches:
+      #         only: dr-testing
       # - migrate-database-production:
       #     requires:
       #       - terraform-init-and-apply-to-production
@@ -383,7 +383,6 @@ workflows:
       - permit-production-release:
           type: approval
           requires:
-            - terraform-init-and-apply-to-production
             - assume-role-production
           filters:
             branches:
