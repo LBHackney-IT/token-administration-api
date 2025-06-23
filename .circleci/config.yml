@@ -99,7 +99,7 @@ commands:
           name: Destroy lambda
           command: |
             cd ./TokenAdministrationApi/
-            sls remove --stage <<parameters.stage>> --conceal
+            sls remove --stage <<parameters.stage>> --verbose
 
 
   # migrate-database:
