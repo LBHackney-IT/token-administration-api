@@ -324,7 +324,7 @@ workflows:
       - deploy-to-development:
           requires: [ migrate-database-development ]
 
-  check-and-deploy-staging-and-production:
+  staging-and-production-deployment:
     jobs:
       - build-and-test:
           filters:
