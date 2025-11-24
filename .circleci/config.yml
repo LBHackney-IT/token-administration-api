@@ -333,19 +333,20 @@ workflows:
           requires: [ assume-role-production ]
 
   deploy-infrastructure:
-    - permit-development-terraform-release:
-        type: approval
-        filters:
-          branches:
-            only: development
-    - assume-role-development:
-        context: api-assume-role-development-context
-        requires: [ permit-development-terraform-release ]
-    # This job will be removed in the future PR
-    - fix-development-env-terraform-provider:
-          requires: [ assume-role-development ]
-    - terraform-init-and-apply-to-development:
-        requires: [ assume-role-development, fix-development-env-terraform-provider ]
+    jobs:
+      - permit-development-terraform-release:
+          type: approval
+          filters:
+            branches:
+              only: development
+      - assume-role-development:
+          context: api-assume-role-development-context
+          requires: [ permit-development-terraform-release ]
+      # This job will be removed in the future PR
+      - fix-development-env-terraform-provider:
+            requires: [ assume-role-development ]
+      - terraform-init-and-apply-to-development:
+          requires: [ assume-role-development, fix-development-env-terraform-provider ]
 
   development-deployment:
     jobs:
