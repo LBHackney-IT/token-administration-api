@@ -304,7 +304,7 @@ workflows:
       - preview-terraform-production:
           requires: [ assume-role-production ]
 
-  check-and-deploy-development:
+  development-deployment:
     jobs:
       - check-code-formatting:
           filters:
@@ -316,31 +316,14 @@ workflows:
               only: development
       - assume-role-development:
           context: api-assume-role-development-context
-          requires:
-            - build-and-test
-          filters:
-            branches:
-              only: development
+          requires: [ build-and-test ]
       - terraform-init-and-apply-to-development:
-          requires:
-            - assume-role-development
-          filters:
-            branches:
-              only: development
+          requires: [ assume-role-development ]
       - migrate-database-development:
-          requires:
-            - terraform-init-and-apply-to-development
-            - assume-role-development
-          filters:
-            branches:
-              only: development
+          requires: [ terraform-init-and-apply-to-development ]
       - deploy-to-development:
-          requires:
-            - assume-role-development
-            - migrate-database-development
-          filters:
-            branches:
-              only: development
+          requires: [ migrate-database-development ]
+
   check-and-deploy-staging-and-production:
     jobs:
       - build-and-test:
