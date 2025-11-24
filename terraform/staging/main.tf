@@ -11,11 +11,13 @@ provider "aws" {
   region  = "eu-west-2"
   version = "~> 2.0"
 }
+
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
+
 locals {
   application_name = "auth token generator api"
-   parameter_store = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
+  parameter_store = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
 }
 
 terraform {
@@ -31,23 +33,24 @@ terraform {
 data "aws_vpc" "staging_vpc" {
   tags = {
     Name = "apis-stg"
-    }
+  }
 }
+
 data "aws_subnet_ids" "staging" {
   vpc_id = data.aws_vpc.staging_vpc.id
   filter {
     name   = "tag:Type"
     values = ["private"]
-    }
+  }
 }
 
- data "aws_ssm_parameter" "auth_token_generator_postgres_password" {
-   name = "/api-auth-token-generator/staging/postgres-password"
- }
+data "aws_ssm_parameter" "auth_token_generator_postgres_password" {
+  name = "/api-auth-token-generator/staging/postgres-password"
+}
 
- data "aws_ssm_parameter" "auth_token_generator_postgres_username" {
-   name = "/api-auth-token-generator/staging/postgres-username"
- }
+data "aws_ssm_parameter" "auth_token_generator_postgres_username" {
+  name = "/api-auth-token-generator/staging/postgres-username"
+}
 
 module "postgres_db_staging" {
   source = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/database/postgres"
