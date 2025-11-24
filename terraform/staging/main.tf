@@ -35,6 +35,7 @@ data "aws_vpc" "staging_vpc" {
     Name = "apis-stg"
   }
 }
+
 data "aws_subnet_ids" "staging" {
   vpc_id = data.aws_vpc.staging_vpc.id
   filter {
