@@ -345,10 +345,17 @@ workflows:
       - deploy-to-staging:
           context: [ "Serverless Framework" ]
           requires: [ migrate-database-staging ]
+      - start-production-release:
+          type: approval
+          requires:
+            - deploy-to-staging
+          filters:
+            branches:
+              only: master
       - assume-role-production:
           context: api-assume-role-production-context
           requires:
-              - deploy-to-staging
+              - start-production-release
           filters:
             branches:
               only: master
