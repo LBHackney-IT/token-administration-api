@@ -11,11 +11,13 @@ provider "aws" {
   region  = "eu-west-2"
   version = "~> 2.0"
 }
+
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
+
 locals {
   application_name = "auth token generator api"
-   parameter_store = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
+  parameter_store = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
 }
 
 terraform {
@@ -30,24 +32,25 @@ terraform {
 /*    POSTGRES SET UP    */
 data "aws_vpc" "development_vpc" {  
   tags = {    
-    Name = "vpc-development-apis-development"  
-    }
+    Name = "apis-dev"  
+  }
 }
+
 data "aws_subnet_ids" "development_private_subnets" {  
   vpc_id = data.aws_vpc.development_vpc.id  
   filter {    
     name   = "tag:Type"    
     values = ["private"]  
-    }
+  }
 }
 
- data "aws_ssm_parameter" "auth_token_generator_postgres_password" {
-   name = "/api-auth-token-generator/development/postgres-password"
- }
+data "aws_ssm_parameter" "auth_token_generator_postgres_password" {
+  name = "/api-auth-token-generator/development/postgres-password"
+}
 
- data "aws_ssm_parameter" "auth_token_generator_postgres_username" {
-   name = "/api-auth-token-generator/development/postgres-username"
- }
+data "aws_ssm_parameter" "auth_token_generator_postgres_username" {
+  name = "/api-auth-token-generator/development/postgres-username"
+}
 
 module "postgres_db_development" {
   source = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/database/postgres"
