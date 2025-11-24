@@ -274,10 +274,28 @@ jobs:
           stage: "pre-production"
 
 workflows:
+  feature:
+    jobs:
+      - check-code-formatting:
+          filters:
+            branches:
+              ignore: [ development, master ]
+      - build-and-test:
+          requires: check-code-formatting
+          filters:
+            branches:
+              ignore: [ development, master ]
+
   check-and-deploy-development:
     jobs:
-      - check-code-formatting
-      - build-and-test
+      - check-code-formatting:
+          filters:
+            branches:
+              only: development
+      - build-and-test:
+          filters:
+            branches:
+              only: development
       - assume-role-development:
           context: api-assume-role-development-context
           requires:
