@@ -327,21 +327,21 @@ workflows:
   check-and-deploy-staging-and-production:
     jobs:
       - build-and-test:
-        filters:
-          branches:
-            only: master
+          filters:
+            branches:
+              only: master
       - assume-role-staging:
-         context: api-assume-role-staging-context
-         requires: [ build-and-test ]
+          context: api-assume-role-staging-context
+          requires: [ build-and-test ]
       - preview-terraform-staging:
           requires: [ assume-role-staging ]
       - permit-staging-terraform-release:
           type: approval
           requires: [ preview-terraform-staging ]
       - terraform-init-and-apply-to-staging:
-         requires: [ permit-staging-terraform-release ]
+          requires: [ permit-staging-terraform-release ]
       - migrate-database-staging:
-         requires: [ terraform-init-and-apply-to-staging ]
+          requires: [ terraform-init-and-apply-to-staging ]
       - deploy-to-staging:
           context: [ "Serverless Framework" ]
           requires: [ migrate-database-staging ]
