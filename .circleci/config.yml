@@ -396,9 +396,12 @@ workflows:
           filters:
             branches:
               only: master
+      - start-staging-deployment:
+          type: approval
+          requires: [ build-and-test ]
       - assume-role-staging:
           context: api-assume-role-staging-context
-          requires: [ build-and-test ]
+          requires: [ start-staging-deployment ]
       - migrate-database-staging:
           requires: [ assume-role-staging ]
       - deploy-to-staging:
@@ -410,15 +413,11 @@ workflows:
       - assume-role-production:
           context: api-assume-role-production-context
           requires: [ start-production-release ]
-      # TODO: should be after the permit
       - migrate-database-production:
           requires: [ assume-role-production ]
-      - permit-production-release:
-          type: approval
-          requires: [ migrate-database-production ]
       - deploy-to-production:
           context: [ "Serverless Framework" ]
-          requires: [ permit-production-release ]
+          requires: [ migrate-database-production ]
 
   deploy-terraform-pre-production:
     jobs:
