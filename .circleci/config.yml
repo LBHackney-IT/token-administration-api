@@ -347,58 +347,25 @@ workflows:
           requires: [ migrate-database-staging ]
       - start-production-release:
           type: approval
-          requires:
-            - deploy-to-staging
-          filters:
-            branches:
-              only: master
+          requires: [ deploy-to-staging ]
       - assume-role-production:
           context: api-assume-role-production-context
-          requires:
-              - start-production-release
-          filters:
-            branches:
-              only: master
+          requires: [ start-production-release ]
       - preview-terraform-production:
-          requires:
-            - assume-role-production
-          filters:
-            branches:
-              only: master
+          requires: [ assume-role-production ]
       - permit-production-terraform-release:
           type: approval
-          requires:
-            - preview-terraform-production
+          requires: [ preview-terraform-production ]
       - terraform-init-and-apply-to-production:
-          requires:
-            - permit-production-terraform-release
-          filters:
-            branches:
-              only: master
+          requires: [ permit-production-terraform-release ]
       - migrate-database-production:
-          requires:
-            - terraform-init-and-apply-to-production
-            - assume-role-production
-          filters:
-            branches:
-              only: master
+          requires: [ terraform-init-and-apply-to-production ]
       - permit-production-release:
           type: approval
-          requires:
-            - migrate-database-production
-          filters:
-            branches:
-              only: master
+          requires: [ migrate-database-production ]
       - deploy-to-production:
-          context:
-            - "Serverless Framework"
-          requires:
-            - permit-production-release
-            - assume-role-production
-            - migrate-database-production
-          filters:
-            branches:
-              only: master
+          context: [ "Serverless Framework" ]
+          requires: [ permit-production-release ]
 
   deploy-terraform-pre-production:
     jobs:
