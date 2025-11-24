@@ -279,12 +279,12 @@ workflows:
       - check-code-formatting:
           filters:
             branches:
-              ignore: [ development, master ]
+              ignore: [development, master]
       - build-and-test:
-          requires: check-code-formatting
+          requires: [check-code-formatting]
           filters:
             branches:
-              ignore: [ development, master ]
+              ignore: [development, master]
 
   check-and-deploy-development:
     jobs:
