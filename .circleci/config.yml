@@ -279,12 +279,31 @@ workflows:
       - check-code-formatting:
           filters:
             branches:
-              ignore: [development, master]
+              ignore: [ development, master ]
       - build-and-test:
-          requires: [check-code-formatting]
+          requires: [ check-code-formatting ]
+      - assume-role-development:
+          context: api-assume-role-development-context
           filters:
             branches:
-              ignore: [development, master]
+              ignore: [ development, master ]
+      - preview-terraform-development:
+          requires: [ assume-role-development ]
+      - assume-role-staging:
+          context: api-assume-role-staging-context
+          filters:
+            branches:
+              ignore: [ development, master ]
+      - preview-terraform-staging:
+          requires: [ assume-role-staging ]
+      - assume-role-production:
+          context: api-assume-role-production-context
+          requires: [ deploy-to-staging ]
+          filters:
+            branches:
+              ignore: [ development, master ]
+      - preview-terraform-production:
+          requires: [ assume-role-production ]
 
   check-and-deploy-development:
     jobs:
