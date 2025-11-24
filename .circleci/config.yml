@@ -298,7 +298,6 @@ workflows:
           requires: [ assume-role-staging ]
       - assume-role-production:
           context: api-assume-role-production-context
-          requires: [ deploy-to-staging ]
           filters:
             branches:
               ignore: [ development, master ]
