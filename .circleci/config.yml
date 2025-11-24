@@ -46,12 +46,16 @@ commands:
       - *attach_workspace
       - checkout
       - run:
+          name: Initialize Terraform
           command: |
             cd ./terraform/<<parameters.environment>>/
             terraform get -update=true
             terraform init
+      - run:
+          name: Preview Terraform changes
+          command: |
+            cd ./terraform/<<parameters.environment>>/
             terraform plan
-          name: get, init, and plan
   terraform-init-then-apply:
     description: "Initializes and applies terraform configuration"
     parameters:
