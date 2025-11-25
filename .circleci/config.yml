@@ -272,34 +272,6 @@ jobs:
     steps:
       - migrate-database:
           stage: "pre-production"
-  # This job will be removed later on. Adding it in for the sake of transparency
-  fix-development-env-terraform-provider:
-    executor: docker-terraform
-    steps:
-      - *attach_workspace
-      - checkout
-      - run:
-          name: Initialize Terraform
-          command: |
-            cd terraform/development/
-            terraform get -update=true
-            terraform init || true
-      - run:
-          name: List providers
-          command: |
-            cd terraform/development/
-            terraform providers || true
-      - run:
-          name: Replace legacy AWS provider with the new one
-          command: |
-            cd terraform/development/
-            terraform state replace-provider -auto-approve "registry.terraform.io/-/aws" "hashicorp/aws"
-      - run:
-          name: Confirm the change in providers
-          command: |
-            cd terraform/development/
-            terraform init || true
-            terraform providers
 
 workflows:
   feature:
