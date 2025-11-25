@@ -69,7 +69,7 @@ module "postgres_db_production" {
   storage_encrypted = false
 
   db_engine = "postgres"
-  db_engine_version = "16.4"
+  db_engine_version = "16.8"
   db_username = data.aws_ssm_parameter.auth_token_generator_postgres_username.value
   db_password = data.aws_ssm_parameter.auth_token_generator_postgres_password.value
   db_name = "auth_token_generator_db"
