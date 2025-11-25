@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TokenAdministrationApi.V1.Infrastructure;
@@ -11,9 +12,11 @@ using TokenAdministrationApi.V1.Infrastructure;
 namespace TokenAdministrationApi.V1.Infrastructure.Migrations
 {
     [DbContext(typeof(TokenDatabaseContext))]
-    partial class TokenDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20251125151314_AddApiGatewayIdToApiLookup")]
+    partial class AddApiGatewayIdToApiLookup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
