@@ -63,7 +63,7 @@ module "postgres_db_development" {
   environment_name = "development"
   vpc_id = data.aws_vpc.development_vpc.id
   db_engine = "postgres"
-  db_engine_version = "11.1"
+  db_engine_version = "16.4"
   db_identifier = "auth-token-generator-dev-db"
   db_instance_class = "db.t2.micro"
   db_name = "auth_token_generator_db"
