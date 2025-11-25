@@ -88,3 +88,14 @@ module "postgres_db_development" {
     BackupPolicy = "Dev"
   }
 }
+
+resource "aws_ssm_parameter" "postgres_hostname" {
+  name  = "/api-auth-token-generator/development/postgres-hostname"
+  type  = "String" 
+  
+  value = module.postgres_db_development.db_instance_endpoint 
+
+  tags = {
+    Project     = "platform apis"
+  }
+}
