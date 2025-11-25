@@ -23,3 +23,9 @@ lint:
 	-dotnet tool install -g dotnet-format
 	dotnet tool update -g dotnet-format
 	dotnet format
+
+.PHONY: install-ef-tool
+install-ef-tool:
+	@if ! dotnet tool list --global | grep -q "dotnet-ef"; then \
+		dotnet tool install --global dotnet-ef --version 8.0.11; \
+	fi
