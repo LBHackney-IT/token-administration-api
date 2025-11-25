@@ -70,7 +70,7 @@ module "postgres_db_development" {
   multi_az = false
   publicly_accessible = false
 
-  db_instance_class = "db.t2.micro"
+  db_instance_class = "db.t3.micro"
   db_allocated_storage = 20
   storage_encrypted = false
 
