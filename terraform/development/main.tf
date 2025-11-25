@@ -58,23 +58,23 @@ data "aws_ssm_parameter" "auth_token_generator_postgres_username" {
   name = "/api-auth-token-generator/development/postgres-username"
 }
 
-# module "postgres_db_development" {
-#   source = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/database/postgres"
-#   environment_name = "development"
-#   vpc_id = data.aws_vpc.development_vpc.id
-#   db_engine = "postgres"
-#   db_engine_version = "11.1"
-#   db_identifier = "auth-token-generator-dev-db"
-#   db_instance_class = "db.t2.micro"
-#   db_name = "auth_token_generator_db"
-#   db_port  = 5101
-#   db_username = data.aws_ssm_parameter.auth_token_generator_postgres_username.value
-#   db_password = data.aws_ssm_parameter.auth_token_generator_postgres_password.value
-#   subnet_ids = data.aws_subnet_ids.development_private_subnets.ids
-#   db_allocated_storage = 20
-#   maintenance_window ="sun:10:00-sun:10:30"
-#   storage_encrypted = false
-#   multi_az = false //only true if production deployment
-#   publicly_accessible = false
-#   project_name = "platform apis"
-# }
+module "postgres_db_development" {
+  source = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/database/postgres"
+  environment_name = "development"
+  vpc_id = data.aws_vpc.development_vpc.id
+  db_engine = "postgres"
+  db_engine_version = "11.1"
+  db_identifier = "auth-token-generator-dev-db"
+  db_instance_class = "db.t2.micro"
+  db_name = "auth_token_generator_db"
+  db_port  = 5101
+  db_username = data.aws_ssm_parameter.auth_token_generator_postgres_username.value
+  db_password = data.aws_ssm_parameter.auth_token_generator_postgres_password.value
+  subnet_ids = data.aws_subnet_ids.development_private_subnets.ids
+  db_allocated_storage = 20
+  maintenance_window ="sun:10:00-sun:10:30"
+  storage_encrypted = false
+  multi_az = false //only true if production deployment
+  publicly_accessible = false
+  project_name = "platform apis"
+}
