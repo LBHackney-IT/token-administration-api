@@ -17,7 +17,7 @@ data "aws_region" "current" {}
 
 locals {
   application_name = "auth token generator api"
-   parameter_store = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
+  parameter_store = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
 }
 
 terraform {
@@ -33,23 +33,24 @@ terraform {
 data "aws_vpc" "production_vpc" {
   tags = {
     Name = "apis-prod"
-    }
+  }
 }
+
 data "aws_subnet_ids" "production" {
   vpc_id = data.aws_vpc.production_vpc.id
   filter {
     name   = "tag:Type"
     values = ["private"]
-    }
+  }
 }
 
- data "aws_ssm_parameter" "auth_token_generator_postgres_password" {
-   name = "/api-auth-token-generator/production/postgres-password"
- }
+data "aws_ssm_parameter" "auth_token_generator_postgres_password" {
+  name = "/api-auth-token-generator/production/postgres-password"
+}
 
- data "aws_ssm_parameter" "auth_token_generator_postgres_username" {
-   name = "/api-auth-token-generator/production/postgres-username"
- }
+data "aws_ssm_parameter" "auth_token_generator_postgres_username" {
+  name = "/api-auth-token-generator/production/postgres-username"
+}
 
 module "postgres_db_production" {
   source = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/database/postgres"
