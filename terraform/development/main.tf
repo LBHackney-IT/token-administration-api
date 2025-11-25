@@ -78,4 +78,8 @@ module "postgres_db_development" {
   publicly_accessible = false
   project_name = "platform apis"
   copy_tags_to_snapshot = true
+
+  additional_tags = {
+    BackupPolicy = "Dev"
+  }
 }
