@@ -135,6 +135,9 @@ commands:
           name: Install dotnet ef core
           command: dotnet tool install dotnet-ef --version 8.0.11 --tool-path ./dotnet-ef-local/
       - run:
+          name: Install postgresql client
+          command: apt-get install -y postgresql-client
+      - run:
           name: SSH into RDS and migrate database
           command: |
             aws ssm get-parameter --name "/platform-apis-jump-box-pem-key" --output text --query Parameter.Value > ./private-key.pem
@@ -148,7 +151,19 @@ commands:
             DATABASE=$(aws ssm get-parameter --name /api-auth-token-generator/<<parameters.stage>>/postgres-database --query Parameter.Value)
             CONN_STR="Host=localhost;Password=${PASSWORD};Port=5432;Username=${USERNAME};Database=${DATABASE}"
             cd ./TokenAdministrationApi/
-            CONNECTION_STRING=${CONN_STR} ./../dotnet-ef-local/dotnet-ef database update
+
+            if [ "<<parameters.stage>>" = "development" ]; then
+              echo "Development environment detected. Attempting migration."
+              CONNECTION_STRING=${CONN_STR} ./../dotnet-ef-local/dotnet-ef database update
+              echo "Migration complete."
+            else
+              echo "Staging or Production environment detected. Marking the migration as complete"
+              MIGRATION_NAME="20251125151314_AddApiGatewayIdToApiLookup"
+              PRODUCT_VERSION="8.0.11"
+              SQL_COMMAND="INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") VALUES ('${MIGRATION_NAME}', '${PRODUCT_VERSION}');"
+              psql "${CONN_STR}" -c "${SQL_COMMAND}"
+              echo "Migration successfully registered as complete."
+            fi
 
 jobs:
   check-code-formatting:
