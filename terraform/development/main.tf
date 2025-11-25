@@ -63,7 +63,6 @@ module "postgres_db_development" {
 
   environment_name = "development"
   project_name = "platform apis"
-  db_name = "auth_token_generator_db"
   db_identifier = "auth-token-generator-dev-db"
 
   vpc_id = data.aws_vpc.development_vpc.id
@@ -79,6 +78,7 @@ module "postgres_db_development" {
   db_engine_version = "16.4"
   db_username = data.aws_ssm_parameter.auth_token_generator_postgres_username.value
   db_password = data.aws_ssm_parameter.auth_token_generator_postgres_password.value
+  db_name = "auth_token_generator_db"
   db_port  = 5101
 
   copy_tags_to_snapshot = true
