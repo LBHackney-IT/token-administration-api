@@ -42,7 +42,7 @@ data "aws_vpc" "development_vpc" {
   }
 }
 
-data "aws_subnet_ids" "development_private_subnets" {
+data "aws_subnet_ids" "development" {
   vpc_id = data.aws_vpc.development_vpc.id
   filter {
     name   = "tag:Type"
@@ -66,7 +66,7 @@ module "postgres_db_development" {
   db_identifier = "auth-token-generator-dev-db"
 
   vpc_id = data.aws_vpc.development_vpc.id
-  subnet_ids = data.aws_subnet_ids.development_private_subnets.ids
+  subnet_ids = data.aws_subnet_ids.development.ids
   multi_az = false
   publicly_accessible = false
 
