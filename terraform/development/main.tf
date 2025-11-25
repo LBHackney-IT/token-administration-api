@@ -77,4 +77,5 @@ module "postgres_db_development" {
   multi_az = false //only true if production deployment
   publicly_accessible = false
   project_name = "platform apis"
+  copy_tags_to_snapshot = true
 }
