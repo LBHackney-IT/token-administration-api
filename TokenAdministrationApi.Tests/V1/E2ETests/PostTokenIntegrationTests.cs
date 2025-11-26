@@ -167,7 +167,8 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
         {
             var api = new ApiNameLookup
             {
-                ApiName = _faker.Random.Word()
+                ApiName = _faker.Random.Word(),
+                ApiGatewayId = _faker.Random.String2(1, 16)
             };
             var apiEndpoint = new ApiEndpointNameLookup
             {
