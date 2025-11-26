@@ -81,7 +81,7 @@ module "postgres_db_development" {
   db_username = data.aws_ssm_parameter.auth_token_generator_postgres_username.value
   db_password = data.aws_ssm_parameter.auth_token_generator_postgres_password.value
   db_name = "auth_token_generator_db"
-  db_port  = locals.token_db_port
+  db_port  = local.token_db_port
 
   copy_tags_to_snapshot = true
   maintenance_window ="sun:10:00-sun:10:30"
@@ -104,8 +104,8 @@ resource "aws_ssm_parameter" "postgres_hostname" {
 
 resource "aws_security_group_rule" "allow_jumpbox_traffic" {
   type              = "ingress"
-  from_port         = locals.token_db_port
-  to_port           = locals.token_db_port
+  from_port         = local.token_db_port
+  to_port           = local.token_db_port
   protocol          = "tcp"
   source_security_group_id = "sg-0a457bf4e6eda31de"
   security_group_id = module.postgres_db_development.db_security_group_id
