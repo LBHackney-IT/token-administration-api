@@ -12,7 +12,7 @@ using TokenAdministrationApi.V1.Infrastructure;
 namespace TokenAdministrationApi.V1.Infrastructure.Migrations
 {
     [DbContext(typeof(TokenDatabaseContext))]
-    [Migration("20251125151314_AddApiGatewayIdToApiLookup")]
+    [Migration("20251125171927_AddApiGatewayIdToApiLookup")]
     partial class AddApiGatewayIdToApiLookup
     {
         /// <inheritdoc />
@@ -59,7 +59,8 @@ namespace TokenAdministrationApi.V1.Infrastructure.Migrations
 
                     b.Property<string>("ApiGatewayId")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
                         .HasColumnName("api_gateway_id");
 
                     b.Property<string>("ApiName")

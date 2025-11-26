@@ -158,7 +158,7 @@ commands:
               echo "Migration complete."
             else
               echo "Staging or Production environment detected. Marking the migration as complete"
-              MIGRATION_NAME="20251125151314_AddApiGatewayIdToApiLookup"
+              MIGRATION_NAME="20251125171927_AddApiGatewayIdToApiLookup"
               PRODUCT_VERSION="8.0.11"
               SQL_COMMAND="INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") VALUES ('${MIGRATION_NAME}', '${PRODUCT_VERSION}');"
               psql "${CONN_STR}" -c "${SQL_COMMAND}"

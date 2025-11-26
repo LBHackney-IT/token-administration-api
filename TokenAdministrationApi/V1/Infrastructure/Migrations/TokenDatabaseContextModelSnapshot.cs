@@ -56,7 +56,8 @@ namespace TokenAdministrationApi.V1.Infrastructure.Migrations
 
                     b.Property<string>("ApiGatewayId")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
                         .HasColumnName("api_gateway_id");
 
                     b.Property<string>("ApiName")

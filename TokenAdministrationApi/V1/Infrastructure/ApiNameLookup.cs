@@ -19,6 +19,7 @@ namespace TokenAdministrationApi.V1.Infrastructure
         public string ApiName { get; set; }
 
         [Required]
+        [MaxLength(16)]
         [Column("api_gateway_id")]
         public string ApiGatewayId { get; set; }
     }
