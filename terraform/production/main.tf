@@ -54,26 +54,32 @@ data "aws_ssm_parameter" "auth_token_generator_postgres_username" {
 
 module "postgres_db_production" {
   source = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/database/postgres"
+
   environment_name = "production"
-  vpc_id = data.aws_vpc.production_vpc.id
-  db_engine = "postgres"
-  db_engine_version = "16.4"
-  db_allow_major_version_upgrade = true
+  project_name = "platform apis"
   db_identifier = "auth-token-generator-prod-db"
-  db_instance_class = "db.t3.micro"
-  db_name = "auth_token_generator_db"
-  db_port  = 5100
-  db_username = data.aws_ssm_parameter.auth_token_generator_postgres_username.value
-  db_password = data.aws_ssm_parameter.auth_token_generator_postgres_password.value
+
+  vpc_id = data.aws_vpc.production_vpc.id
   subnet_ids = data.aws_subnet_ids.production.ids
-  db_allocated_storage = 20
-  maintenance_window ="sun:10:00-sun:10:30"
-  storage_encrypted = false
   multi_az = true
   publicly_accessible = false
-  project_name = "platform apis"
+
+  db_instance_class = "db.t3.micro"
+  db_allocated_storage = 20
+  storage_encrypted = false
+
+  db_engine = "postgres"
+  db_engine_version = "16.8"
+  db_username = data.aws_ssm_parameter.auth_token_generator_postgres_username.value
+  db_password = data.aws_ssm_parameter.auth_token_generator_postgres_password.value
+  db_name = "auth_token_generator_db"
+  db_port  = 5100
+
   deletion_protection = true
   copy_tags_to_snapshot = true
+  db_allow_major_version_upgrade = true
+  maintenance_window ="sun:10:00-sun:10:30"
+
   additional_tags = {
     BackupPolicy = "Prod"
   }
