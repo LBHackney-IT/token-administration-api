@@ -329,8 +329,13 @@ workflows:
       - assume-role-development:
           context: api-assume-role-development-context
           requires: [ deploy-development-infrastructure ]
-      - terraform-init-and-apply-to-development:
+      - preview-terraform-development:
           requires: [ assume-role-development ]
+      - permit-terraform-deployment-to-dev:
+          type: approval
+          requires: [ preview-terraform-development ]
+      - terraform-init-and-apply-to-development:
+          requires: [ permit-terraform-deployment-to-dev ]
       - deploy-staging-infrastructure:
           type: approval
           filters:
