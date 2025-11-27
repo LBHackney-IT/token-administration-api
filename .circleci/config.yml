@@ -3,6 +3,7 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@5.4.1
   aws_assume_role: lbh-hackit/aws_assume_role@0.1.0
+  node: circleci/node@7.2.1
 
 executors:
   docker-python:
@@ -84,11 +85,7 @@ commands:
       - *attach_workspace
       - checkout
       - setup_remote_docker
-      - run:
-          name: Install Node.js
-          command: |
-            curl -sL https://deb.nodesource.com/setup_22.x | bash -
-            apt-get update && apt-get install -y nodejs
+      - node/install
       - run:
           name: Install serverless CLI
           command: npm i -g serverless
@@ -369,36 +366,36 @@ workflows:
           requires: [ permit-terraform-deployment-to-production ]
       
 
-  development-deployment:
+  deployment-api-aplication:
     jobs:
       - check-code-formatting:
           filters:
             branches:
               only: development
       - build-and-test:
+          name: "Build and test development"
           filters:
             branches:
               only: development
       - start-development-deployment:
           type: approval
-          requires: [ build-and-test ]
+          requires: [ "Build and test development" ]
       - assume-role-development:
           context: api-assume-role-development-context
           requires: [ start-development-deployment ]
       - migrate-database-development:
           requires: [ assume-role-development ]
       - deploy-to-development:
+          context: [ "Serverless Framework" ]
           requires: [ migrate-database-development ]
-
-  staging-and-production-deployment:
-    jobs:
       - build-and-test:
+          name: "Build and test master"
           filters:
             branches:
               only: master
       - start-staging-deployment:
           type: approval
-          requires: [ build-and-test ]
+          requires: [ "Build and test master" ]
       - assume-role-staging:
           context: api-assume-role-staging-context
           requires: [ start-staging-deployment ]
