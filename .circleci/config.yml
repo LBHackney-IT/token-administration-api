@@ -385,6 +385,7 @@ workflows:
       - migrate-database-development:
           requires: [ assume-role-development ]
       - deploy-to-development:
+          context: [ "Serverless Framework" ]
           requires: [ migrate-database-development ]
 
   staging-and-production-deployment:
