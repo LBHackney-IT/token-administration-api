@@ -366,7 +366,7 @@ workflows:
           requires: [ permit-terraform-deployment-to-production ]
       
 
-  development-deployment:
+  deployment-api-aplication:
     jobs:
       - check-code-formatting:
           filters:
@@ -387,9 +387,6 @@ workflows:
       - deploy-to-development:
           context: [ "Serverless Framework" ]
           requires: [ migrate-database-development ]
-
-  staging-and-production-deployment:
-    jobs:
       - build-and-test:
           filters:
             branches:
