@@ -372,14 +372,14 @@ workflows:
           filters:
             branches:
               only: development
-      - build-and-test-development:
-          job: build-and-test
+      - build-and-test:
+          name: "Build and test development"
           filters:
             branches:
               only: development
       - start-development-deployment:
           type: approval
-          requires: [ build-and-test ]
+          requires: [ "Build and test development" ]
       - assume-role-development:
           context: api-assume-role-development-context
           requires: [ start-development-deployment ]
@@ -388,14 +388,14 @@ workflows:
       - deploy-to-development:
           context: [ "Serverless Framework" ]
           requires: [ migrate-database-development ]
-      - build-and-test-master:
-          job: build-and-test
+      - build-and-test:
+          name: "Build and test master"
           filters:
             branches:
               only: master
       - start-staging-deployment:
           type: approval
-          requires: [ build-and-test ]
+          requires: [ "Build and test master" ]
       - assume-role-staging:
           context: api-assume-role-staging-context
           requires: [ start-staging-deployment ]
