@@ -149,19 +149,20 @@ commands:
             PASSWORD=$(aws ssm get-parameter --name /api-auth-token-generator/<<parameters.stage>>/postgres-password --query Parameter.Value)
             USERNAME=$(aws ssm get-parameter --name /api-auth-token-generator/<<parameters.stage>>/postgres-username --query Parameter.Value)
             DATABASE=$(aws ssm get-parameter --name /api-auth-token-generator/<<parameters.stage>>/postgres-database --query Parameter.Value)
-            CONN_STR="Host=localhost;Password=${PASSWORD};Port=5432;Username=${USERNAME};Database=${DATABASE}"
+            DOTNET_CONN_STR="Host=localhost;Password=${PASSWORD};Port=5432;Username=${USERNAME};Database=${DATABASE}"
+            PSQL_CONN_STR="host=localhost password=${PASSWORD} port=5432 user=${USERNAME} dbname=${DATABASE}"
             cd ./TokenAdministrationApi/
 
             if [ "<<parameters.stage>>" = "development" ]; then
               echo "Development environment detected. Attempting migration."
-              CONNECTION_STRING=${CONN_STR} ./../dotnet-ef-local/dotnet-ef database update
+              CONNECTION_STRING=${DOTNET_CONN_STR} ./../dotnet-ef-local/dotnet-ef database update
               echo "Migration complete."
             else
               echo "Staging or Production environment detected. Marking the migration as complete"
               MIGRATION_NAME="20251125171927_AddApiGatewayIdToApiLookup"
               PRODUCT_VERSION="8.0.11"
               SQL_COMMAND="INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") VALUES ('${MIGRATION_NAME}', '${PRODUCT_VERSION}');"
-              psql "${CONN_STR}" -c "${SQL_COMMAND}"
+              psql "${PSQL_CONN_STR}" -c "${SQL_COMMAND}"
               echo "Migration successfully registered as complete."
             fi
 
