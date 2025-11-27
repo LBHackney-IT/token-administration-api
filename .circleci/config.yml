@@ -372,7 +372,8 @@ workflows:
           filters:
             branches:
               only: development
-      - build-and-test:
+      - build-and-test-development:
+          job: build-and-test
           filters:
             branches:
               only: development
@@ -387,7 +388,8 @@ workflows:
       - deploy-to-development:
           context: [ "Serverless Framework" ]
           requires: [ migrate-database-development ]
-      - build-and-test:
+      - build-and-test-master:
+          job: build-and-test
           filters:
             branches:
               only: master
