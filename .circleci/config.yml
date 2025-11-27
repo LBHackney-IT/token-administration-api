@@ -359,8 +359,13 @@ workflows:
       - assume-role-production:
           context: api-assume-role-production-context
           requires: [ deploy-production-infrastructure ]
-      - terraform-init-and-apply-to-production:
+      - preview-terraform-production:
           requires: [ assume-role-production ]
+      - permit-terraform-deployment-to-production:
+          type: approval
+          requires: [ preview-terraform-production ]
+      - terraform-init-and-apply-to-production:
+          requires: [ permit-terraform-deployment-to-production ]
       
 
   development-deployment:
