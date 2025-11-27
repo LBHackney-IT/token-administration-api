@@ -366,7 +366,7 @@ workflows:
           requires: [ permit-terraform-deployment-to-production ]
       
 
-  deployment-api-aplication:
+  deploy-api-code:
     jobs:
       - check-code-formatting:
           filters:
