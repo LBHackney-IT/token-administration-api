@@ -3,6 +3,7 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@5.4.1
   aws_assume_role: lbh-hackit/aws_assume_role@0.1.0
+  node: circleci/node@7.2.1
 
 executors:
   docker-python:
@@ -84,11 +85,7 @@ commands:
       - *attach_workspace
       - checkout
       - setup_remote_docker
-      - run:
-          name: Install Node.js
-          command: |
-            curl -sL https://deb.nodesource.com/setup_22.x | bash -
-            apt-get update && apt-get install -y nodejs
+      - node/install
       - run:
           name: Install serverless CLI
           command: npm i -g serverless
@@ -149,19 +146,20 @@ commands:
             PASSWORD=$(aws ssm get-parameter --name /api-auth-token-generator/<<parameters.stage>>/postgres-password --query Parameter.Value)
             USERNAME=$(aws ssm get-parameter --name /api-auth-token-generator/<<parameters.stage>>/postgres-username --query Parameter.Value)
             DATABASE=$(aws ssm get-parameter --name /api-auth-token-generator/<<parameters.stage>>/postgres-database --query Parameter.Value)
-            CONN_STR="Host=localhost;Password=${PASSWORD};Port=5432;Username=${USERNAME};Database=${DATABASE}"
+            DOTNET_CONN_STR="Host=localhost;Password=${PASSWORD};Port=5432;Username=${USERNAME};Database=${DATABASE}"
+            PSQL_CONN_STR="host=localhost password=${PASSWORD} port=5432 user=${USERNAME} dbname=${DATABASE}"
             cd ./TokenAdministrationApi/
 
             if [ "<<parameters.stage>>" = "development" ]; then
               echo "Development environment detected. Attempting migration."
-              CONNECTION_STRING=${CONN_STR} ./../dotnet-ef-local/dotnet-ef database update
+              CONNECTION_STRING=${DOTNET_CONN_STR} ./../dotnet-ef-local/dotnet-ef database update
               echo "Migration complete."
             else
               echo "Staging or Production environment detected. Marking the migration as complete"
               MIGRATION_NAME="20251125171927_AddApiGatewayIdToApiLookup"
               PRODUCT_VERSION="8.0.11"
               SQL_COMMAND="INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") VALUES ('${MIGRATION_NAME}', '${PRODUCT_VERSION}');"
-              psql "${CONN_STR}" -c "${SQL_COMMAND}"
+              psql "${PSQL_CONN_STR}" -c "${SQL_COMMAND}"
               echo "Migration successfully registered as complete."
             fi
 
@@ -329,8 +327,13 @@ workflows:
       - assume-role-development:
           context: api-assume-role-development-context
           requires: [ deploy-development-infrastructure ]
-      - terraform-init-and-apply-to-development:
+      - preview-terraform-development:
           requires: [ assume-role-development ]
+      - permit-terraform-deployment-to-development:
+          type: approval
+          requires: [ preview-terraform-development ]
+      - terraform-init-and-apply-to-development:
+          requires: [ permit-terraform-deployment-to-development ]
       - deploy-staging-infrastructure:
           type: approval
           filters:
@@ -339,8 +342,13 @@ workflows:
       - assume-role-staging:
           context: api-assume-role-staging-context
           requires: [ deploy-staging-infrastructure ]
-      - terraform-init-and-apply-to-staging:
+      - preview-terraform-staging:
           requires: [ assume-role-staging ]
+      - permit-terraform-deployment-to-staging:
+          type: approval
+          requires: [ preview-terraform-staging ]
+      - terraform-init-and-apply-to-staging:
+          requires: [ permit-terraform-deployment-to-staging ]
       - deploy-production-infrastructure:
           type: approval
           filters:
@@ -349,40 +357,45 @@ workflows:
       - assume-role-production:
           context: api-assume-role-production-context
           requires: [ deploy-production-infrastructure ]
-      - terraform-init-and-apply-to-production:
+      - preview-terraform-production:
           requires: [ assume-role-production ]
+      - permit-terraform-deployment-to-production:
+          type: approval
+          requires: [ preview-terraform-production ]
+      - terraform-init-and-apply-to-production:
+          requires: [ permit-terraform-deployment-to-production ]
       
 
-  development-deployment:
+  deployment-api-aplication:
     jobs:
       - check-code-formatting:
           filters:
             branches:
               only: development
       - build-and-test:
+          name: "Build and test development"
           filters:
             branches:
               only: development
       - start-development-deployment:
           type: approval
-          requires: [ build-and-test ]
+          requires: [ "Build and test development" ]
       - assume-role-development:
           context: api-assume-role-development-context
           requires: [ start-development-deployment ]
       - migrate-database-development:
           requires: [ assume-role-development ]
       - deploy-to-development:
+          context: [ "Serverless Framework" ]
           requires: [ migrate-database-development ]
-
-  staging-and-production-deployment:
-    jobs:
       - build-and-test:
+          name: "Build and test master"
           filters:
             branches:
               only: master
       - start-staging-deployment:
           type: approval
-          requires: [ build-and-test ]
+          requires: [ "Build and test master" ]
       - assume-role-staging:
           context: api-assume-role-staging-context
           requires: [ start-staging-deployment ]
