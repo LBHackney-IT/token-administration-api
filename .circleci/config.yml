@@ -331,11 +331,11 @@ workflows:
           requires: [ deploy-development-infrastructure ]
       - preview-terraform-development:
           requires: [ assume-role-development ]
-      - permit-terraform-deployment-to-dev:
+      - permit-terraform-deployment-to-development:
           type: approval
           requires: [ preview-terraform-development ]
       - terraform-init-and-apply-to-development:
-          requires: [ permit-terraform-deployment-to-dev ]
+          requires: [ permit-terraform-deployment-to-development ]
       - deploy-staging-infrastructure:
           type: approval
           filters:
@@ -344,8 +344,13 @@ workflows:
       - assume-role-staging:
           context: api-assume-role-staging-context
           requires: [ deploy-staging-infrastructure ]
-      - terraform-init-and-apply-to-staging:
+      - preview-terraform-staging:
           requires: [ assume-role-staging ]
+      - permit-terraform-deployment-to-staging:
+          type: approval
+          requires: [ preview-terraform-staging ]
+      - terraform-init-and-apply-to-staging:
+          requires: [ permit-terraform-deployment-to-staging ]
       - deploy-production-infrastructure:
           type: approval
           filters:
