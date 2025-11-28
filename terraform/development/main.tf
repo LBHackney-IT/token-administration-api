@@ -31,10 +31,12 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 locals {
-  application_name = "auth token generator api"
-  parameter_store = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
+  application_name  = "auth token generator api"
+  parameter_store   = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
 
-  token_db_port = 5101
+  token_db_port     = 5101
+  jumpbox_sg_id     = "sg-0a457bf4e6eda31de"
+  token_api_sg_id   = "sg-038858c252a355ffa"
 }
 
 /*    POSTGRES SET UP    */
@@ -107,6 +109,15 @@ resource "aws_security_group_rule" "allow_jumpbox_traffic" {
   from_port         = local.token_db_port
   to_port           = local.token_db_port
   protocol          = "tcp"
-  source_security_group_id = "sg-0a457bf4e6eda31de"
+  source_security_group_id = local.jumpbox_sg_id
+  security_group_id = module.postgres_db_development.db_security_group_id
+}
+
+resource "aws_security_group_rule" "allow_token_api_traffic" {
+  type              = "ingress"
+  from_port         = local.token_db_port
+  to_port           = local.token_db_port
+  protocol          = "tcp"
+  source_security_group_id = local.token_api_sg_id
   security_group_id = module.postgres_db_development.db_security_group_id
 }
