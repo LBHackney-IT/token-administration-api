@@ -31,10 +31,13 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 locals {
-  application_name = "auth token generator api"
-  parameter_store = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
+  application_name  = "auth token generator api"
+  parameter_store   = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
 
-  token_db_port = 5101
+  token_db_port     = 5101
+  token_db_name     = "auth_token_generator_db"
+  jumpbox_sg_id     = "sg-0a457bf4e6eda31de"
+  token_api_sg_id   = "sg-038858c252a355ffa"
 }
 
 /*    POSTGRES SET UP    */
@@ -80,8 +83,8 @@ module "postgres_db_development" {
   db_engine_version = "16.8"
   db_username = data.aws_ssm_parameter.auth_token_generator_postgres_username.value
   db_password = data.aws_ssm_parameter.auth_token_generator_postgres_password.value
-  db_name = "auth_token_generator_db"
-  db_port  = local.token_db_port
+  db_name   = local.token_db_name
+  db_port   = local.token_db_port
 
   copy_tags_to_snapshot = true
   maintenance_window ="sun:10:00-sun:10:30"
@@ -102,11 +105,31 @@ resource "aws_ssm_parameter" "postgres_hostname" {
   }
 }
 
+resource "aws_ssm_parameter" "postgres_database" {
+  name  = "/api-auth-token-generator/development/postgres-database"
+  type  = "String" 
+  
+  value = local.token_db_name
+
+  tags = {
+    Project     = "platform apis"
+  }
+}
+
 resource "aws_security_group_rule" "allow_jumpbox_traffic" {
   type              = "ingress"
   from_port         = local.token_db_port
   to_port           = local.token_db_port
   protocol          = "tcp"
-  source_security_group_id = "sg-0a457bf4e6eda31de"
+  source_security_group_id = local.jumpbox_sg_id
+  security_group_id = module.postgres_db_development.db_security_group_id
+}
+
+resource "aws_security_group_rule" "allow_token_api_traffic" {
+  type              = "ingress"
+  from_port         = local.token_db_port
+  to_port           = local.token_db_port
+  protocol          = "tcp"
+  source_security_group_id = local.token_api_sg_id
   security_group_id = module.postgres_db_development.db_security_group_id
 }
