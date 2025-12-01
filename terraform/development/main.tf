@@ -34,10 +34,11 @@ locals {
   application_name  = "auth token generator api"
   parameter_store   = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
 
-  token_db_port     = 5101
-  token_db_name     = "auth_token_generator_db"
-  jumpbox_sg_id     = "sg-0a457bf4e6eda31de"
-  token_api_sg_id   = "sg-038858c252a355ffa"
+  token_db_port         = 5101
+  token_db_name         = "auth_token_generator_db"
+  jumpbox_sg_id         = "sg-0a457bf4e6eda31de"
+  token_api_sg_id       = "sg-038858c252a355ffa"
+  new_authorizer_sg_id  = "sg-012c8d9cacad91fcb"
 }
 
 /*    POSTGRES SET UP    */
