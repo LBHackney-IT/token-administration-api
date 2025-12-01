@@ -134,3 +134,12 @@ resource "aws_security_group_rule" "allow_token_api_traffic" {
   source_security_group_id = local.token_api_sg_id
   security_group_id = module.postgres_db_development.db_security_group_id
 }
+
+resource "aws_security_group_rule" "allow_new_authorizer_traffic" {
+  type              = "ingress"
+  from_port         = local.token_db_port
+  to_port           = local.token_db_port
+  protocol          = "tcp"
+  source_security_group_id = local.new_authorizer_sg_id
+  security_group_id = module.postgres_db_development.db_security_group_id
+}
