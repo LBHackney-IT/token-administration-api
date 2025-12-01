@@ -34,10 +34,11 @@ locals {
   application_name  = "auth token generator api"
   parameter_store   = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
 
-  token_db_port     = 5101
-  token_db_name     = "auth_token_generator_db"
-  jumpbox_sg_id     = "sg-0a457bf4e6eda31de"
-  token_api_sg_id   = "sg-038858c252a355ffa"
+  token_db_port         = 5101
+  token_db_name         = "auth_token_generator_db"
+  jumpbox_sg_id         = "sg-0a457bf4e6eda31de"
+  token_api_sg_id       = "sg-038858c252a355ffa"
+  new_authorizer_sg_id  = "sg-012c8d9cacad91fcb"
 }
 
 /*    POSTGRES SET UP    */
@@ -131,5 +132,14 @@ resource "aws_security_group_rule" "allow_token_api_traffic" {
   to_port           = local.token_db_port
   protocol          = "tcp"
   source_security_group_id = local.token_api_sg_id
+  security_group_id = module.postgres_db_development.db_security_group_id
+}
+
+resource "aws_security_group_rule" "allow_new_authorizer_traffic" {
+  type              = "ingress"
+  from_port         = local.token_db_port
+  to_port           = local.token_db_port
+  protocol          = "tcp"
+  source_security_group_id = local.new_authorizer_sg_id
   security_group_id = module.postgres_db_development.db_security_group_id
 }
