@@ -273,10 +273,21 @@ jobs:
     steps:
       - migrate-database:
           stage: "pre-production"
+  test:
+    executor: docker-dotnet
+    steps:
+      - run:
+          name: sleep
+          command: sleep 10
 
 workflows:
   feature:
     jobs:
+      - test:
+          context: api-assume-role-development-context
+          filters:
+            branches:
+              ignore: [ development, master ]
       - check-code-formatting:
           filters:
             branches:
