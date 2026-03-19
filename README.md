@@ -78,6 +78,7 @@ To run database tests locally (e.g. via Visual Studio) the `CONNECTION_STRING` e
 Note: The Host name needs to be the name of the stub database docker-compose service, in order to run tests via Docker.
 
 ### Agreed Testing Approach
+
 - Use nUnit, FluentAssertions and Moq
 - Always follow a TDD approach
 - Tests should be independent of each other
@@ -90,13 +91,46 @@ Note: The Host name needs to be the name of the stub database docker-compose ser
 - Have integration tests which test from the PostgreSQL database to API Gateway
 
 ## Data Migrations
+
 ### A good data migration
+
 - Record failure logs
 - Automated
 - Reliable
 - As close to real time as possible
 - Observable monitoring in place
 - Should not affect any existing databases
+
+## local dev setup
+
+This is useful when you want to run the API in a container with some existing data.
+
+1. start localdb container: `make serve-local-dev-database`
+2. run migrations to get the schema in place: `make migrate-local-dev-database`
+3. get the required lookups in place: connect to the SQL db and run the database/local-dev-seed.sql commands
+4. start the API container:  `make serve-local-dev-api`
+
+API is now running on port 3000. 
+
+The database has been configured to run on port 5433 to prevent it from clashing with the test db. It's also configured to persist data, so the container can be safely stopped without losing data.
+
+Sample payload to generate a token:
+
+`POST http://localhost:3000/api/v1/tokens`
+
+``` JSON
+{
+    "requestedBy" : "someones@hackney.gov.uk",
+    "authorizedBy": "someone@hackney.gov.uk",
+    "consumerType": 1, 
+    "consumer": "Demo API",
+    "apiName" : 1,
+    "apiEndpoint": 1,
+    "httpMethodType": "GET",
+    "environment": "development",
+    "dateRequested": "2026-03-18"
+}
+```
 
 ## Contacts
 
