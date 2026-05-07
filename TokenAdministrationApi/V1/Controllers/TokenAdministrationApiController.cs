@@ -19,13 +19,16 @@ namespace TokenAdministrationApi.V1.Controllers
         private readonly IGetAllTokensUseCase _getAllTokensUseCase;
         private readonly IPostTokenUseCase _postTokenUseCase;
         private readonly IUpdateTokenValidityUseCase _updateTokenValidity;
+        private readonly IGetTokenOptionsUseCase _getTokenOptionsUseCase;
+
 
         public TokenAdministrationApiController(IGetAllTokensUseCase getAllTokensUseCase, IPostTokenUseCase postTokenUseCase,
-            IUpdateTokenValidityUseCase updateTokenValidity)
+            IUpdateTokenValidityUseCase updateTokenValidity, IGetTokenOptionsUseCase tokenOptionsUseCase)
         {
             _getAllTokensUseCase = getAllTokensUseCase;
             _postTokenUseCase = postTokenUseCase;
             _updateTokenValidity = updateTokenValidity;
+            _getTokenOptionsUseCase = tokenOptionsUseCase;
         }
 
         /// <summary>
@@ -84,5 +87,14 @@ namespace TokenAdministrationApi.V1.Controllers
 
             return NoContent();
         }
+
+        [ProducesResponseType(typeof(TokenOptionsResponse), StatusCodes.Status200OK)]
+        [HttpGet("options")]
+        public IActionResult GetTokenOptions()
+        {
+            return Ok(_getTokenOptionsUseCase.Execute());
+        }
+
+
     }
 }

@@ -129,6 +129,7 @@ namespace TokenAdministrationApi
             services.AddScoped<IPostTokenUseCase, PostTokenUseCase>();
             services.AddScoped<IGenerateJwtUseCase, GenerateJwtUseCase>();
             services.AddScoped<IUpdateTokenValidityUseCase, UpdateTokenValidityUseCase>();
+            services.AddScoped<IGetTokenOptionsUseCase, GetTokenOptionsUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

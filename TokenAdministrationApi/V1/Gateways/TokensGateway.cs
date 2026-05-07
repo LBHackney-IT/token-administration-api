@@ -8,6 +8,8 @@ using TokenAdministrationApi.V1.Domain;
 using TokenAdministrationApi.V1.Factories;
 using TokenAdministrationApi.V1.Infrastructure;
 using TokenAdministrationApi.V1.Domain.Exceptions;
+using TokenAdministrationApi.V1.Boundary.Response;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace TokenAdministrationApi.V1.Gateways
 {
@@ -77,6 +79,35 @@ namespace TokenAdministrationApi.V1.Gateways
             token.Enabled = enabled;
             _databaseContext.SaveChanges();
             return token.Id;
+        }
+
+        public TokenOptionsResponse GetTokenOptions()
+        {
+            var tokenOptions = new TokenOptionsResponse
+            {
+                ConsumerTypes = _databaseContext.ConsumerTypeLookups.Select(consumerType => new ConsumerTypeOptionResponse
+                {
+                    Id = consumerType.Id,
+                    TypeName = consumerType.TypeName
+                }).ToList(),
+                ApiLookups =  _databaseContext.ApiNameLookups.Select(api => new ApiLookupOptionResponse
+                {
+                    Id = api.Id,
+                    ApiName = api.ApiName,
+                    ApiGatewayId =api.ApiGatewayId
+                    
+                }).ToList(),
+                     ApiEndpoints =  _databaseContext.ApiEndpointNameLookups.Select(endpoint => new ApiEndpointOptionResponse
+                {
+                    Id = endpoint.Id,
+                    ApiLookupId =  endpoint.ApiLookupId,
+                    EndpointName = endpoint.ApiEndpointName
+                    
+                }).ToList()
+
+             };
+            return tokenOptions;
+
         }
     }
 }
