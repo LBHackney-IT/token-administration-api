@@ -24,6 +24,7 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
         private Mock<IPostTokenUseCase> _mockPostTokenUseCase;
         private Mock<IGetAllTokensUseCase> _mockGetAllTokensUseCase;
         private Mock<IUpdateTokenValidityUseCase> _updateTokenValidity;
+        private Mock<IGetTokenOptionsUseCase> _getTokenOptionsUseCase;
 
 
         [SetUp]
@@ -32,9 +33,10 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
             _mockGetAllTokensUseCase = new Mock<IGetAllTokensUseCase>();
             _mockPostTokenUseCase = new Mock<IPostTokenUseCase>();
             _updateTokenValidity = new Mock<IUpdateTokenValidityUseCase>();
+            _getTokenOptionsUseCase = new Mock<IGetTokenOptionsUseCase>();
 
             _classUnderTest = new TokenAdministrationApiController(_mockGetAllTokensUseCase.Object, _mockPostTokenUseCase.Object,
-                _updateTokenValidity.Object);
+                _updateTokenValidity.Object, _getTokenOptionsUseCase.Object);
         }
         [Test]
         public void EnsureControllerListTokensMethodCallsGetAllTokensUseCase()
@@ -142,6 +144,67 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
             result.Should().NotBeNull();
             result.StatusCode.Should().Be(400);
             result.Value.Should().Be("One or more of the lookup ids provided is incorrect - foreign key violation message");
+        }
+
+        [Test]
+        public void EnsureControllerGetTokenOptionsMethodCallsUseCase()
+        {
+            var response = new TokenOptionsResponse();
+            _getTokenOptionsUseCase.Setup(x => x.Execute()).Returns(response);
+
+            _classUnderTest.GetTokenOptions();
+
+            _getTokenOptionsUseCase.Verify(x => x.Execute(), Times.Once);
+        }
+
+        [Test]
+        public void ControllerGetTokenOptionsMethodShouldReturnResponseOfTypeTokenOptionsResponse()
+        {
+            var response = new TokenOptionsResponse();
+            _getTokenOptionsUseCase.Setup(x => x.Execute()).Returns(response);
+
+            var result = _classUnderTest.GetTokenOptions() as OkObjectResult;
+
+            result.Should().NotBeNull();
+            result.Value.Should().BeOfType<TokenOptionsResponse>();
+        }
+
+        [Test]
+        public void ControllerGetTokenOptionsMethodShouldReturn200StatusCode()
+        {
+            var response = new TokenOptionsResponse();
+            _getTokenOptionsUseCase.Setup(x => x.Execute()).Returns(response);
+
+            var result = _classUnderTest.GetTokenOptions() as OkObjectResult;
+
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(200);
+        }
+
+        [Test]
+        public void ControllerGetTokenOptionsMethodCanReturnTokenOptions()
+        {
+            var expectedResponse = new TokenOptionsResponse
+            {
+                ConsumerTypes = new List<ConsumerTypeOptionResponse>
+                {
+                    new ConsumerTypeOptionResponse { Id = 1, TypeName = "token-options-consumer" }
+                },
+                ApiLookups = new List<ApiLookupOptionResponse>
+                {
+                    new ApiLookupOptionResponse { Id = 1, ApiName = "contracts-api", ApiGatewayId = "gw-test-1234567" }
+                },
+                ApiEndpoints = new List<ApiEndpointOptionResponse>
+                {
+                    new ApiEndpointOptionResponse { Id = 1, ApiLookupId = 1, EndpointName = "/api/v1/token-options-test" }
+                }
+            };
+            _getTokenOptionsUseCase.Setup(x => x.Execute()).Returns(expectedResponse);
+
+            var result = _classUnderTest.GetTokenOptions() as OkObjectResult;
+
+            result.Should().NotBeNull();
+            result.Value.Should().Be(expectedResponse);
         }
     }
 }

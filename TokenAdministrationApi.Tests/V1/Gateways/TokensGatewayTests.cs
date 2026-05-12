@@ -11,6 +11,7 @@ using TokenAdministrationApi.Tests.V1.Helper;
 using TokenAdministrationApi.V1.Domain;
 using System.Collections.Generic;
 using TokenAdministrationApi.V1.Domain.Exceptions;
+using TokenAdministrationApi.V1.Boundary.Response;
 
 namespace TokenAdministrationApi.Tests.V1.Gateways
 {
@@ -213,6 +214,59 @@ namespace TokenAdministrationApi.Tests.V1.Gateways
             testDelegate.Should().Throw<LookupValueDoesNotExistException>();
 
         }
+
+        [Test]
+        public void ShouldGetTokenOptionsFromDatabase()
+        {
+            var consumerType = new ConsumerTypeLookup
+            {
+                Id = 1,
+                TypeName = "token-options-consumer"
+            };
+            var api = new ApiNameLookup
+            {
+                Id = 1,
+                ApiName = "contracts-api",
+                ApiGatewayId = "gw-test-1234567"
+            };
+            var apiEndpoint = new ApiEndpointNameLookup
+            {
+                Id = 1,
+                ApiLookupId = api.Id,
+                ApiEndpointName = "/api/v1/token-options-test"
+            };
+
+            DatabaseContext.ConsumerTypeLookups.Add(consumerType);
+            DatabaseContext.ApiNameLookups.Add(api);
+            DatabaseContext.ApiEndpointNameLookups.Add(apiEndpoint);
+            DatabaseContext.SaveChanges();
+
+            var result = _classUnderTest.GetTokenOptions();
+
+            result.Should().NotBeNull();
+            result.ConsumerTypes.Should().ContainSingle();
+            result.ApiLookups.Should().ContainSingle();
+            result.ApiEndpoints.Should().ContainSingle();
+
+            result.ConsumerTypes[0].Should().BeEquivalentTo(new ConsumerTypeOptionResponse
+            {
+                Id = consumerType.Id,
+                TypeName = consumerType.TypeName
+            });
+            result.ApiLookups[0].Should().BeEquivalentTo(new ApiLookupOptionResponse
+            {
+                Id = api.Id,
+                ApiName = api.ApiName,
+                ApiGatewayId = api.ApiGatewayId
+            });
+            result.ApiEndpoints[0].Should().BeEquivalentTo(new ApiEndpointOptionResponse
+            {
+                Id = apiEndpoint.Id,
+                ApiLookupId = apiEndpoint.ApiLookupId,
+                EndpointName = apiEndpoint.ApiEndpointName
+            });
+        }
+
         private AuthTokens AddTokenLookupValues()
         {
             var fixture = new Fixture();
