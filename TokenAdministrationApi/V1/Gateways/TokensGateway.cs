@@ -90,24 +90,45 @@ namespace TokenAdministrationApi.V1.Gateways
                     Id = consumerType.Id,
                     TypeName = consumerType.TypeName
                 }).ToList(),
-                ApiLookups =  _databaseContext.ApiNameLookups.Select(api => new ApiLookupOptionResponse
+                ApiLookups = _databaseContext.ApiNameLookups.Select(api => new ApiLookupOptionResponse
                 {
                     Id = api.Id,
                     ApiName = api.ApiName,
-                    ApiGatewayId =api.ApiGatewayId
-                    
+                    ApiGatewayId = api.ApiGatewayId
+
                 }).ToList(),
-                     ApiEndpoints =  _databaseContext.ApiEndpointNameLookups.Select(endpoint => new ApiEndpointOptionResponse
+                ApiEndpoints = _databaseContext.ApiEndpointNameLookups.Select(endpoint => new ApiEndpointOptionResponse
                 {
                     Id = endpoint.Id,
-                    ApiLookupId =  endpoint.ApiLookupId,
+                    ApiLookupId = endpoint.ApiLookupId,
                     EndpointName = endpoint.ApiEndpointName
-                    
+
                 }).ToList()
 
-             };
+            };
             return tokenOptions;
 
+
+
+        }
+
+        public ApiLookupOptionResponse CreateApiLookup(CreateApiLookupRequest request)
+        {
+            var apiLookup = new ApiNameLookup
+            {
+                ApiName = request.ApiName,
+                ApiGatewayId = request.ApiGatewayId
+            };
+
+            _databaseContext.ApiNameLookups.Add(apiLookup);
+            _databaseContext.SaveChanges();
+
+            return new ApiLookupOptionResponse
+            {
+                Id = apiLookup.Id,
+                ApiName = apiLookup.ApiName,
+                ApiGatewayId = apiLookup.ApiGatewayId
+            };
         }
     }
 }

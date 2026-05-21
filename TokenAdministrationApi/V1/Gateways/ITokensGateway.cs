@@ -11,5 +11,7 @@ namespace TokenAdministrationApi.V1.Gateways
         int GenerateToken(TokenRequestObject tokenRequestObject);
         int? UpdateToken(int tokenId, bool enabled);
         TokenOptionsResponse GetTokenOptions();
+
+        ApiLookupOptionResponse CreateApiLookup(CreateApiLookupRequest request);
     }
 }

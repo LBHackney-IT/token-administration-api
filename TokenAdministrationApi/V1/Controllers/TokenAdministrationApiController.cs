@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using TokenAdministrationApi.V1.Boundary.Requests;
 using TokenAdministrationApi.V1.Boundary.Request;
 using TokenAdministrationApi.V1.Domain.Exceptions;
+using System.Reflection.Metadata.Ecma335;
 
 namespace TokenAdministrationApi.V1.Controllers
 {
@@ -20,15 +21,17 @@ namespace TokenAdministrationApi.V1.Controllers
         private readonly IPostTokenUseCase _postTokenUseCase;
         private readonly IUpdateTokenValidityUseCase _updateTokenValidity;
         private readonly IGetTokenOptionsUseCase _getTokenOptionsUseCase;
+        private readonly IPostApiUseCase _postApiUsecase;
 
 
         public TokenAdministrationApiController(IGetAllTokensUseCase getAllTokensUseCase, IPostTokenUseCase postTokenUseCase,
-            IUpdateTokenValidityUseCase updateTokenValidity, IGetTokenOptionsUseCase tokenOptionsUseCase)
+            IUpdateTokenValidityUseCase updateTokenValidity, IGetTokenOptionsUseCase tokenOptionsUseCase, IPostApiUseCase postApiUsecase)
         {
             _getAllTokensUseCase = getAllTokensUseCase;
             _postTokenUseCase = postTokenUseCase;
             _updateTokenValidity = updateTokenValidity;
             _getTokenOptionsUseCase = tokenOptionsUseCase;
+            _postApiUsecase = postApiUsecase;
         }
 
         /// <summary>
@@ -95,6 +98,16 @@ namespace TokenAdministrationApi.V1.Controllers
             return Ok(_getTokenOptionsUseCase.Execute());
         }
 
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(GenerateTokenResponse), StatusCodes.Status201Created)]
+        [HttpPost("apis")]
+        public IActionResult PostApi([FromBody] CreateApiLookupRequest request)
+        {
+            var response = _postApiUsecase.Execute(request);
+            return StatusCode(StatusCodes.Status201Created, response);
+
+        }
 
     }
+
 }
