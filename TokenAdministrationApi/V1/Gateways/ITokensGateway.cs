@@ -13,5 +13,7 @@ namespace TokenAdministrationApi.V1.Gateways
         TokenOptionsResponse GetTokenOptions();
 
         ApiLookupOptionResponse CreateApiLookup(CreateApiLookupRequest request);
+
+         ApiEndpointOptionResponse  CreateEndpoint(CreateEndpointRequest request);
     }
 }

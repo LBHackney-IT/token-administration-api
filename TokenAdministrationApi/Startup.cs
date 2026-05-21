@@ -131,6 +131,7 @@ namespace TokenAdministrationApi
             services.AddScoped<IUpdateTokenValidityUseCase, UpdateTokenValidityUseCase>();
             services.AddScoped<IGetTokenOptionsUseCase, GetTokenOptionsUseCase>();
             services.AddScoped<IPostApiUseCase, PostApiUseCase>();
+            services.AddScoped<IPostEndpointUseCase, PostEndpointUseCase>();
 
         }
 

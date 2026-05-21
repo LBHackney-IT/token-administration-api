@@ -10,6 +10,7 @@ using TokenAdministrationApi.V1.Infrastructure;
 using TokenAdministrationApi.V1.Domain.Exceptions;
 using TokenAdministrationApi.V1.Boundary.Response;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.AspNetCore.Http;
 
 namespace TokenAdministrationApi.V1.Gateways
 {
@@ -128,6 +129,26 @@ namespace TokenAdministrationApi.V1.Gateways
                 Id = apiLookup.Id,
                 ApiName = apiLookup.ApiName,
                 ApiGatewayId = apiLookup.ApiGatewayId
+            };
+        }
+
+        public ApiEndpointOptionResponse CreateEndpoint(CreateEndpointRequest request)
+        {
+            var Endpoint = new ApiEndpointNameLookup
+            {
+                // ApiName = request.ApiName,
+                ApiEndpointName = request.EndpointName
+
+            };
+
+            _databaseContext.ApiEndpointNameLookups.Add(Endpoint);
+            _databaseContext.SaveChanges();
+
+            return new ApiEndpointOptionResponse
+            {
+                Id = Endpoint.Id,
+                // ApiName = Endpoint.ApiName,
+                EndpointName = Endpoint.ApiEndpointName
             };
         }
     }

@@ -23,15 +23,18 @@ namespace TokenAdministrationApi.V1.Controllers
         private readonly IGetTokenOptionsUseCase _getTokenOptionsUseCase;
         private readonly IPostApiUseCase _postApiUsecase;
 
+        private readonly IPostEndpointUseCase _postEndpointUsecase;
+
 
         public TokenAdministrationApiController(IGetAllTokensUseCase getAllTokensUseCase, IPostTokenUseCase postTokenUseCase,
-            IUpdateTokenValidityUseCase updateTokenValidity, IGetTokenOptionsUseCase tokenOptionsUseCase, IPostApiUseCase postApiUsecase)
+            IUpdateTokenValidityUseCase updateTokenValidity, IGetTokenOptionsUseCase tokenOptionsUseCase, IPostApiUseCase postApiUsecase, IPostEndpointUseCase postEndpointUsecase)
         {
             _getAllTokensUseCase = getAllTokensUseCase;
             _postTokenUseCase = postTokenUseCase;
             _updateTokenValidity = updateTokenValidity;
             _getTokenOptionsUseCase = tokenOptionsUseCase;
             _postApiUsecase = postApiUsecase;
+            _postEndpointUsecase = postEndpointUsecase;
         }
 
         /// <summary>
@@ -99,7 +102,7 @@ namespace TokenAdministrationApi.V1.Controllers
         }
 
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(typeof(GenerateTokenResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiLookupOptionResponse), StatusCodes.Status201Created)]
         [HttpPost("apis")]
         public IActionResult PostApi([FromBody] CreateApiLookupRequest request)
         {
@@ -107,6 +110,18 @@ namespace TokenAdministrationApi.V1.Controllers
             return StatusCode(StatusCodes.Status201Created, response);
 
         }
+
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(ApiLookupOptionResponse), StatusCodes.Status201Created)]
+        [HttpPost("endpoints")]
+        public IActionResult PostEndpoint([FromBody] CreateEndpointRequest request)
+        {
+            var response = _postEndpointUsecase.Execute(request);
+            return StatusCode(StatusCodes.Status201Created, response);
+
+        }
+
+
 
     }
 
