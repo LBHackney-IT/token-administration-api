@@ -14,6 +14,6 @@ namespace TokenAdministrationApi.V1.Gateways
 
         ApiLookupOptionResponse CreateApiLookup(CreateApiLookupRequest request);
 
-         ApiEndpointOptionResponse  CreateEndpoint(CreateEndpointRequest request);
+        CreateEndpointResponse CreateEndpoint(int apiLookupId, CreateEndpointRequest request);
     }
 }

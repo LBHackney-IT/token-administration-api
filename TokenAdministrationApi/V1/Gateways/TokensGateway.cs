@@ -132,23 +132,39 @@ namespace TokenAdministrationApi.V1.Gateways
             };
         }
 
-        public ApiEndpointOptionResponse CreateEndpoint(CreateEndpointRequest request)
+        public CreateEndpointResponse CreateEndpoint(int apiLookupId, CreateEndpointRequest request)
         {
-            var Endpoint = new ApiEndpointNameLookup
+            var apiLookup = _databaseContext.ApiNameLookups.Find(apiLookupId);
+            if (apiLookup == null)
             {
-                // ApiName = request.ApiName,
-                ApiEndpointName = request.EndpointName
+                throw new LookupValueDoesNotExistException("API lookup was not found.");
+            }
 
+            var endpointName = request.EndpointName.Trim();
+            var endpointAlreadyExists = _databaseContext.ApiEndpointNameLookups.Any(endpoint =>
+                endpoint.ApiLookupId == apiLookupId &&
+                endpoint.ApiEndpointName == endpointName);
+
+            if (endpointAlreadyExists)
+            {
+                throw new DuplicateEndpointException("Endpoint already exists for this API.");
+            }
+
+            var endpoint = new ApiEndpointNameLookup
+            {
+                ApiLookupId = apiLookupId,
+                ApiEndpointName = endpointName
             };
 
-            _databaseContext.ApiEndpointNameLookups.Add(Endpoint);
+            _databaseContext.ApiEndpointNameLookups.Add(endpoint);
             _databaseContext.SaveChanges();
 
-            return new ApiEndpointOptionResponse
+            return new CreateEndpointResponse
             {
-                Id = Endpoint.Id,
-                // ApiName = Endpoint.ApiName,
-                EndpointName = Endpoint.ApiEndpointName
+                Id = endpoint.Id,
+                ApiLookupId = endpoint.ApiLookupId,
+                ApiName = apiLookup.ApiName,
+                EndpointName = endpoint.ApiEndpointName
             };
         }
     }

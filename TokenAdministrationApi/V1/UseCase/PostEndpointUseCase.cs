@@ -17,10 +17,10 @@ namespace TokenAdministrationApi.V1.UseCase
         {
             _gateway = gateway;
         }
-        public ApiEndpointOptionResponse Execute(CreateEndpointRequest request)
+
+        public CreateEndpointResponse Execute(int apiLookupId, CreateEndpointRequest request)
         {
-            return _gateway.CreateEndpointLookup(request);
+            return _gateway.CreateEndpoint(apiLookupId, request);
         }
-        
     }
 }

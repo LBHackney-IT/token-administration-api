@@ -112,17 +112,23 @@ namespace TokenAdministrationApi.V1.Controllers
         }
 
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(typeof(ApiLookupOptionResponse), StatusCodes.Status201Created)]
-        [HttpPost("endpoints")]
-        public IActionResult PostEndpoint([FromBody] CreateEndpointRequest request)
+        [ProducesResponseType(typeof(CreateEndpointResponse), StatusCodes.Status201Created)]
+        [HttpPost("apis/{apiLookupId}/endpoints")]
+        public IActionResult PostEndpoint(int apiLookupId, [FromBody] CreateEndpointRequest request)
         {
-            var response = _postEndpointUsecase.Execute(request);
-            return StatusCode(StatusCodes.Status201Created, response);
-
+            try
+            {
+                var response = _postEndpointUsecase.Execute(apiLookupId, request);
+                return StatusCode(StatusCodes.Status201Created, response);
+            }
+            catch (LookupValueDoesNotExistException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (DuplicateEndpointException ex)
+            {
+                return Conflict(ex.Message);
+            }
         }
-
-
-
     }
-
 }

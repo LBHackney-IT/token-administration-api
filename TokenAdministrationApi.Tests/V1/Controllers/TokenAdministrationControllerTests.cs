@@ -25,7 +25,8 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
         private Mock<IGetAllTokensUseCase> _mockGetAllTokensUseCase;
         private Mock<IUpdateTokenValidityUseCase> _updateTokenValidity;
         private Mock<IGetTokenOptionsUseCase> _getTokenOptionsUseCase;
-
+        private Mock<IPostApiUseCase> _postApiUseCase;
+        private Mock<IPostEndpointUseCase> _postEndpointUseCase;
 
         [SetUp]
         public void Setup()
@@ -34,9 +35,11 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
             _mockPostTokenUseCase = new Mock<IPostTokenUseCase>();
             _updateTokenValidity = new Mock<IUpdateTokenValidityUseCase>();
             _getTokenOptionsUseCase = new Mock<IGetTokenOptionsUseCase>();
+            _postApiUseCase = new Mock<IPostApiUseCase>();
+            _postEndpointUseCase = new Mock<IPostEndpointUseCase>();
 
             _classUnderTest = new TokenAdministrationApiController(_mockGetAllTokensUseCase.Object, _mockPostTokenUseCase.Object,
-                _updateTokenValidity.Object, _getTokenOptionsUseCase.Object);
+                _updateTokenValidity.Object, _getTokenOptionsUseCase.Object, _postApiUseCase.Object, _postEndpointUseCase.Object);
         }
         [Test]
         public void EnsureControllerListTokensMethodCallsGetAllTokensUseCase()

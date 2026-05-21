@@ -1,5 +1,8 @@
-public class CreateApiLookupRequest
+namespace TokenAdministrationApi.V1.Boundary.Requests
 {
-    public string ApiName { get; set; }
-    public string ApiGatewayId{ get; set; }
+    public class CreateApiLookupRequest
+    {
+        public string ApiName { get; set; }
+        public string ApiGatewayId { get; set; }
+    }
 }

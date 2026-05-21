@@ -5,6 +5,6 @@ namespace TokenAdministrationApi.V1.UseCase.Interfaces
 {
     public interface IPostEndpointUseCase
     {
-         ApiEndpointOptionResponse Execute(CreateEndpointRequest request);
+        CreateEndpointResponse Execute(int apiLookupId, CreateEndpointRequest request);
     }
 }
