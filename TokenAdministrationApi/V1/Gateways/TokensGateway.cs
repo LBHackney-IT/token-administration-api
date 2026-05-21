@@ -115,10 +115,22 @@ namespace TokenAdministrationApi.V1.Gateways
 
         public ApiLookupOptionResponse CreateApiLookup(CreateApiLookupRequest request)
         {
+            var apiName = request.ApiName.Trim();
+            var apiGatewayId = request.ApiGatewayId.Trim();
+
+            var apiAlreadyExists = _databaseContext.ApiNameLookups.Any(api =>
+                api.ApiName == apiName ||
+                api.ApiGatewayId == apiGatewayId);
+
+            if (apiAlreadyExists)
+            {
+                throw new DuplicateApiException("API name or gateway ID already exists.");
+            }
+
             var apiLookup = new ApiNameLookup
             {
-                ApiName = request.ApiName,
-                ApiGatewayId = request.ApiGatewayId
+                ApiName = apiName,
+                ApiGatewayId = apiGatewayId
             };
 
             _databaseContext.ApiNameLookups.Add(apiLookup);

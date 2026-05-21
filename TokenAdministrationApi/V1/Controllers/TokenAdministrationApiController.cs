@@ -106,9 +106,15 @@ namespace TokenAdministrationApi.V1.Controllers
         [HttpPost("apis")]
         public IActionResult PostApi([FromBody] CreateApiLookupRequest request)
         {
-            var response = _postApiUsecase.Execute(request);
-            return StatusCode(StatusCodes.Status201Created, response);
-
+            try
+            {
+                var response = _postApiUsecase.Execute(request);
+                return StatusCode(StatusCodes.Status201Created, response);
+            }
+            catch (DuplicateApiException ex)
+            {
+                return Conflict(ex.Message);
+            }
         }
 
         [Consumes(MediaTypeNames.Application.Json)]
