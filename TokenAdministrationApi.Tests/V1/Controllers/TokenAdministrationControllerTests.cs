@@ -209,5 +209,82 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
             result.Should().NotBeNull();
             result.Value.Should().Be(expectedResponse);
         }
+
+        [Test]
+        public void ControllerPostApiMethodShouldReturn201WithCreatedApi()
+        {
+            var request = new CreateApiLookupRequest { ApiName = "housing-api", ApiGatewayId = "gw-housing-dev" };
+            var response = new ApiLookupOptionResponse { Id = 1, ApiName = request.ApiName, ApiGatewayId = request.ApiGatewayId };
+            _postApiUseCase.Setup(x => x.Execute(request)).Returns(response);
+
+            var result = _classUnderTest.PostApi(request) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(201);
+            result.Value.Should().Be(response);
+        }
+
+        [Test]
+        public void ControllerPostApiMethodShouldReturn409IfApiAlreadyExists()
+        {
+            var request = new CreateApiLookupRequest { ApiName = "housing-api", ApiGatewayId = "gw-housing-dev" };
+            _postApiUseCase.Setup(x => x.Execute(request))
+                .Throws(new DuplicateApiException("API name or gateway ID already exists."));
+
+            var result = _classUnderTest.PostApi(request) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(409);
+            result.Value.Should().Be("API name or gateway ID already exists.");
+        }
+
+        [Test]
+        public void ControllerPostEndpointMethodShouldReturn201WithCreatedEndpoint()
+        {
+            var apiLookupId = 1;
+            var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
+            var response = new CreateEndpointResponse
+            {
+                Id = 10,
+                ApiLookupId = apiLookupId,
+                ApiName = "housing-api",
+                EndpointName = request.EndpointName
+            };
+            _postEndpointUseCase.Setup(x => x.Execute(apiLookupId, request)).Returns(response);
+
+            var result = _classUnderTest.PostEndpoint(apiLookupId, request) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(201);
+            result.Value.Should().Be(response);
+        }
+
+        [Test]
+        public void ControllerPostEndpointMethodShouldReturn400IfApiLookupDoesNotExist()
+        {
+            var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
+            _postEndpointUseCase.Setup(x => x.Execute(999, request))
+                .Throws(new LookupValueDoesNotExistException("API lookup was not found."));
+
+            var result = _classUnderTest.PostEndpoint(999, request) as BadRequestObjectResult;
+
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(400);
+            result.Value.Should().Be("API lookup was not found.");
+        }
+
+        [Test]
+        public void ControllerPostEndpointMethodShouldReturn409IfEndpointAlreadyExists()
+        {
+            var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
+            _postEndpointUseCase.Setup(x => x.Execute(1, request))
+                .Throws(new DuplicateEndpointException("Endpoint already exists for this API."));
+
+            var result = _classUnderTest.PostEndpoint(1, request) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(409);
+            result.Value.Should().Be("Endpoint already exists for this API.");
+        }
     }
 }

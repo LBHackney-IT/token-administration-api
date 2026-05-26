@@ -267,6 +267,124 @@ namespace TokenAdministrationApi.Tests.V1.Gateways
             });
         }
 
+        [Test]
+        public void CreateApiLookupShouldInsertApiLookupInDatabase()
+        {
+            var request = new CreateApiLookupRequest
+            {
+                ApiName = "housing-api",
+                ApiGatewayId = "gw-housing-dev"
+            };
+
+            var result = _classUnderTest.CreateApiLookup(request);
+
+            var databaseRecord = DatabaseContext.ApiNameLookups.Find(result.Id);
+            databaseRecord.Should().NotBeNull();
+            databaseRecord.ApiName.Should().Be(request.ApiName);
+            databaseRecord.ApiGatewayId.Should().Be(request.ApiGatewayId);
+        }
+
+        [Test]
+        public void CreateApiLookupShouldThrowDuplicateApiExceptionIfNameAlreadyExists()
+        {
+            var existingApi = new ApiNameLookup
+            {
+                ApiName = "housing-api",
+                ApiGatewayId = "gw-housing-dev"
+            };
+            DatabaseContext.ApiNameLookups.Add(existingApi);
+            DatabaseContext.SaveChanges();
+
+            var request = new CreateApiLookupRequest
+            {
+                ApiName = "housing-api",
+                ApiGatewayId = "gw-housing-test"
+            };
+
+            Action createDuplicateApi = () => _classUnderTest.CreateApiLookup(request);
+            createDuplicateApi.Should().Throw<DuplicateApiException>()
+                .WithMessage("API name or gateway ID already exists.");
+        }
+
+        [Test]
+        public void CreateApiLookupShouldThrowDuplicateApiExceptionIfGatewayIdAlreadyExists()
+        {
+            var existingApi = new ApiNameLookup
+            {
+                ApiName = "housing-api",
+                ApiGatewayId = "gw-housing-dev"
+            };
+            DatabaseContext.ApiNameLookups.Add(existingApi);
+            DatabaseContext.SaveChanges();
+
+            var request = new CreateApiLookupRequest
+            {
+                ApiName = "repairs-api",
+                ApiGatewayId = "gw-housing-dev"
+            };
+
+            Action createApiWithDuplicateGatewayId = () => _classUnderTest.CreateApiLookup(request);
+            createApiWithDuplicateGatewayId.Should().Throw<DuplicateApiException>()
+                .WithMessage("API name or gateway ID already exists.");
+        }
+
+        [Test]
+        public void CreateEndpointShouldInsertEndpointForParentApi()
+        {
+            var api = new ApiNameLookup
+            {
+                ApiName = "housing-api",
+                ApiGatewayId = "gw-housing-dev"
+            };
+            DatabaseContext.ApiNameLookups.Add(api);
+            DatabaseContext.SaveChanges();
+
+            var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
+
+            var result = _classUnderTest.CreateEndpoint(api.Id, request);
+
+            var databaseRecord = DatabaseContext.ApiEndpointNameLookups.Find(result.Id);
+            databaseRecord.Should().NotBeNull();
+            databaseRecord.ApiLookupId.Should().Be(api.Id);
+            databaseRecord.ApiEndpointName.Should().Be(request.EndpointName);
+            result.ApiName.Should().Be(api.ApiName);
+        }
+
+        [Test]
+        public void CreateEndpointShouldThrowLookupValueDoesNotExistExceptionIfParentApiDoesNotExist()
+        {
+            var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
+
+            Action createEndpointForMissingApi = () => _classUnderTest.CreateEndpoint(999, request);
+            createEndpointForMissingApi.Should().Throw<LookupValueDoesNotExistException>()
+                .WithMessage("API lookup was not found.");
+        }
+
+        [Test]
+        public void CreateEndpointShouldThrowDuplicateEndpointExceptionIfEndpointAlreadyExistsForApi()
+        {
+            var api = new ApiNameLookup
+            {
+                ApiName = "housing-api",
+                ApiGatewayId = "gw-housing-dev"
+            };
+            DatabaseContext.ApiNameLookups.Add(api);
+            DatabaseContext.SaveChanges();
+
+            DatabaseContext.ApiEndpointNameLookups.Add(new ApiEndpointNameLookup
+            {
+                ApiLookupId = api.Id,
+                ApiEndpointName = "/tenancies"
+            });
+            DatabaseContext.SaveChanges();
+
+            var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
+
+            Action createDuplicateEndpoint = () => _classUnderTest.CreateEndpoint(api.Id, request);
+            createDuplicateEndpoint.Should().Throw<DuplicateEndpointException>()
+                .WithMessage("Endpoint already exists for this API.");
+        }
+
         private AuthTokens AddTokenLookupValues()
         {
             var fixture = new Fixture();
