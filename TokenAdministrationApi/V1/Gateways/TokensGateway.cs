@@ -96,21 +96,15 @@ namespace TokenAdministrationApi.V1.Gateways
                     Id = api.Id,
                     ApiName = api.ApiName,
                     ApiGatewayId = api.ApiGatewayId
-
                 }).ToList(),
                 ApiEndpoints = _databaseContext.ApiEndpointNameLookups.Select(endpoint => new ApiEndpointOptionResponse
                 {
                     Id = endpoint.Id,
                     ApiLookupId = endpoint.ApiLookupId,
                     EndpointName = endpoint.ApiEndpointName
-
                 }).ToList()
-
             };
             return tokenOptions;
-
-
-
         }
 
         public ApiLookupOptionResponse CreateApiLookup(CreateApiLookupRequest request)
