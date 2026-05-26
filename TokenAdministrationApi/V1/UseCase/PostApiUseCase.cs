@@ -21,6 +21,5 @@ namespace TokenAdministrationApi.V1.UseCase
         {
             return _gateway.CreateApiLookup(request);
         }
-        
     }
 }
