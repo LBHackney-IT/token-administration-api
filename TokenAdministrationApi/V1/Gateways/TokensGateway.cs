@@ -9,8 +9,6 @@ using TokenAdministrationApi.V1.Factories;
 using TokenAdministrationApi.V1.Infrastructure;
 using TokenAdministrationApi.V1.Domain.Exceptions;
 using TokenAdministrationApi.V1.Boundary.Response;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.AspNetCore.Http;
 
 namespace TokenAdministrationApi.V1.Gateways
 {
