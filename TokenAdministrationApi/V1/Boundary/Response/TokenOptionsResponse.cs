@@ -1,15 +1,12 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TokenAdministrationApi.V1.Boundary.Response
 {
     public class TokenOptionsResponse
     {
-        public List<ConsumerTypeOptionResponse> ConsumerTypes { get; set; } = new();
-        public List<ApiLookupOptionResponse> ApiLookups { get; set; } = new();
-        public List<ApiEndpointOptionResponse> ApiEndpoints { get; set; } = new();
+        public List<ConsumerTypeOptionResponse> ConsumerTypes { get; set; } = [];
+        public List<ApiLookupOptionResponse> ApiLookups { get; set; } = [];
+        public List<ApiEndpointOptionResponse> ApiEndpoints { get; set; } = [];
     }
 
     public class ConsumerTypeOptionResponse
@@ -32,4 +29,3 @@ namespace TokenAdministrationApi.V1.Boundary.Response
         public string EndpointName { get; set; }
     }
 }
-
