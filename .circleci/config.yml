@@ -101,7 +101,6 @@ commands:
             cd ./TokenAdministrationApi/
             sls deploy --stage <<parameters.stage>> --conceal
 
-
   migrate-database:
     description: "Migrate database"
     parameters:
@@ -275,199 +274,199 @@ jobs:
           stage: "pre-production"
 
 workflows:
-  feature:
-    jobs:
-      - check-code-formatting:
-          filters:
-            branches:
-              ignore: [ development, master ]
-      - build-and-test:
-          requires: [ check-code-formatting ]
-      - assume-role-development:
-          context: api-assume-role-development-context
-          filters:
-            branches:
-              ignore: [ development, master ]
-      - preview-terraform-development:
-          requires: [ assume-role-development ]
-      - assume-role-staging:
-          context: api-assume-role-staging-context
-          filters:
-            branches:
-              ignore: [ development, master ]
-      - preview-terraform-staging:
-          requires: [ assume-role-staging ]
-      - assume-role-production:
-          context: api-assume-role-production-context
-          filters:
-            branches:
-              ignore: [ development, master ]
-      - preview-terraform-production:
-          requires: [ assume-role-production ]
+  # feature:
+  #   jobs:
+  #     - check-code-formatting:
+  #         filters:
+  #           branches:
+  #             ignore: [ development, master ]
+  #     - build-and-test:
+  #         requires: [ check-code-formatting ]
+  # - assume-role-development:
+  #     context: api-assume-role-development-context
+  #     filters:
+  #       branches:
+  #         ignore: [ development, master ]
+  # - preview-terraform-development:
+  #     requires: [ assume-role-development ]
+  # - assume-role-staging:
+  #     context: api-assume-role-staging-context
+  #     filters:
+  #       branches:
+  #         ignore: [ development, master ]
+  # - preview-terraform-staging:
+  #     requires: [ assume-role-staging ]
+  # - assume-role-production:
+  #     context: api-assume-role-production-context
+  #     filters:
+  #       branches:
+  #         ignore: [ development, master ]
+  # - preview-terraform-production:
+  #     requires: [ assume-role-production ]
 
-  deploy-infrastructure:
-    jobs:
-      - deploy-development-infrastructure:
-          type: approval
-          filters:
-            branches:
-              only: development
-      - assume-role-development:
-          context: api-assume-role-development-context
-          requires: [ deploy-development-infrastructure ]
-      - preview-terraform-development:
-          requires: [ assume-role-development ]
-      - permit-terraform-deployment-to-development:
-          type: approval
-          requires: [ preview-terraform-development ]
-      - terraform-init-and-apply-to-development:
-          requires: [ permit-terraform-deployment-to-development ]
-      - deploy-staging-infrastructure:
-          type: approval
-          filters:
-            branches:
-              only: master
-      - assume-role-staging:
-          context: api-assume-role-staging-context
-          requires: [ deploy-staging-infrastructure ]
-      - preview-terraform-staging:
-          requires: [ assume-role-staging ]
-      - permit-terraform-deployment-to-staging:
-          type: approval
-          requires: [ preview-terraform-staging ]
-      - terraform-init-and-apply-to-staging:
-          requires: [ permit-terraform-deployment-to-staging ]
-      - deploy-production-infrastructure:
-          type: approval
-          filters:
-            branches:
-              only: master
-      - assume-role-production:
-          context: api-assume-role-production-context
-          requires: [ deploy-production-infrastructure ]
-      - preview-terraform-production:
-          requires: [ assume-role-production ]
-      - permit-terraform-deployment-to-production:
-          type: approval
-          requires: [ preview-terraform-production ]
-      - terraform-init-and-apply-to-production:
-          requires: [ permit-terraform-deployment-to-production ]
-      
+  # deploy-infrastructure:
+  #   jobs:
+  #     - deploy-development-infrastructure:
+  #         type: approval
+  #         filters:
+  #           branches:
+  #             only: development
+  #     - assume-role-development:
+  #         context: api-assume-role-development-context
+  #         requires: [ deploy-development-infrastructure ]
+  #     - preview-terraform-development:
+  #         requires: [ assume-role-development ]
+  #     - permit-terraform-deployment-to-development:
+  #         type: approval
+  #         requires: [ preview-terraform-development ]
+  #     - terraform-init-and-apply-to-development:
+  #         requires: [ permit-terraform-deployment-to-development ]
+  #     - deploy-staging-infrastructure:
+  #         type: approval
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - assume-role-staging:
+  #         context: api-assume-role-staging-context
+  #         requires: [ deploy-staging-infrastructure ]
+  #     - preview-terraform-staging:
+  #         requires: [ assume-role-staging ]
+  #     - permit-terraform-deployment-to-staging:
+  #         type: approval
+  #         requires: [ preview-terraform-staging ]
+  #     - terraform-init-and-apply-to-staging:
+  #         requires: [ permit-terraform-deployment-to-staging ]
+  #     - deploy-production-infrastructure:
+  #         type: approval
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - assume-role-production:
+  #         context: api-assume-role-production-context
+  #         requires: [ deploy-production-infrastructure ]
+  #     - preview-terraform-production:
+  #         requires: [ assume-role-production ]
+  #     - permit-terraform-deployment-to-production:
+  #         type: approval
+  #         requires: [ preview-terraform-production ]
+  #     - terraform-init-and-apply-to-production:
+  #         requires: [ permit-terraform-deployment-to-production ]
 
   deploy-api-code:
     jobs:
       - check-code-formatting:
           filters:
             branches:
-              only: development
+              only: tokenrequest
       - build-and-test:
           name: "Build and test development"
-          filters:
-            branches:
-              only: development
+          # filters:
+          #   branches:
+          #     only: development
       - start-development-deployment:
           type: approval
-          requires: [ "Build and test development" ]
+          requires: ["Build and test development"]
       - assume-role-development:
           context: api-assume-role-development-context
-          requires: [ start-development-deployment ]
-      - migrate-database-development:
-          requires: [ assume-role-development ]
+          requires: [start-development-deployment]
+      # - migrate-database-development:
+      #     requires: [ assume-role-development ]
       - deploy-to-development:
-          context: [ "Serverless Framework" ]
-          requires: [ migrate-database-development ]
-      - build-and-test:
-          name: "Build and test master"
-          filters:
-            branches:
-              only: master
-      - start-staging-deployment:
-          type: approval
-          requires: [ "Build and test master" ]
-      - assume-role-staging:
-          context: api-assume-role-staging-context
-          requires: [ start-staging-deployment ]
-      - migrate-database-staging:
-          requires: [ assume-role-staging ]
-      - deploy-to-staging:
-          context: [ "Serverless Framework" ]
-          requires: [ migrate-database-staging ]
-      - start-production-release:
-          type: approval
-          requires: [ deploy-to-staging ]
-      - assume-role-production:
-          context: api-assume-role-production-context
-          requires: [ start-production-release ]
-      - migrate-database-production:
-          requires: [ assume-role-production ]
-      - deploy-to-production:
-          context: [ "Serverless Framework" ]
-          requires: [ migrate-database-production ]
+          context: ["Serverless Framework"]
+          # requires: [ migrate-database-development ]
+          requires: [assume-role-development]
+      # - build-and-test:
+      #     name: "Build and test master"
+      #     filters:
+      #       branches:
+      #         only: master
+      # - start-staging-deployment:
+      #     type: approval
+      #     requires: [ "Build and test master" ]
+      # - assume-role-staging:
+      #     context: api-assume-role-staging-context
+      #     requires: [ start-staging-deployment ]
+      # - migrate-database-staging:
+      #     requires: [ assume-role-staging ]
+      # - deploy-to-staging:
+      #     context: [ "Serverless Framework" ]
+      #     requires: [ migrate-database-staging ]
+      # - start-production-release:
+      #     type: approval
+      #     requires: [ deploy-to-staging ]
+      # - assume-role-production:
+      #     context: api-assume-role-production-context
+      #     requires: [ start-production-release ]
+      # - migrate-database-production:
+      #     requires: [ assume-role-production ]
+      # - deploy-to-production:
+      #     context: [ "Serverless Framework" ]
+      #     requires: [ migrate-database-production ]
 
-  deploy-terraform-pre-production:
-    jobs:
-      - permit-pre-production-terraform-workflow:
-          type: approval
-          filters:
-            branches:
-              only: master
-      - assume-role-pre-production:
-          context: api-assume-role-housing-pre-production-context
-          requires:
-            - permit-pre-production-terraform-workflow
-          filters:
-            branches:
-              only: master
-      - terraform-init-and-plan-pre-production:
-          requires:
-            - assume-role-pre-production
-          filters:
-            branches:
-              only: master
-      - permit-pre-production-terraform-deployment:
-          type: approval
-          requires:
-            - terraform-init-and-plan-pre-production
-          filters:
-            branches:
-              only: master
-      - terraform-apply-pre-production:
-          requires:
-            - permit-pre-production-terraform-deployment
-          filters:
-            branches:
-              only: master
-  deploy-code-pre-production:
-    jobs:
-      - permit-pre-production-code-workflow:
-          type: approval
-          filters:
-            branches:
-              only: master
-      - build-and-test:
-          requires:
-            - permit-pre-production-code-workflow
-          filters:
-            branches:
-              only: master
-      - assume-role-pre-production:
-          context: api-assume-role-housing-pre-production-context
-          requires:
-            - build-and-test
-          filters:
-            branches:
-              only: master
-      - migrate-database-pre-production:
-          requires:
-            - assume-role-pre-production
-          filters:
-            branches:
-              only: master
-      - deploy-to-pre-production:
-          context:
-            - "Serverless Framework"
-          requires:
-            - migrate-database-pre-production
-          filters:
-            branches:
-              only: master
+  # deploy-terraform-pre-production:
+  #   jobs:
+  #     - permit-pre-production-terraform-workflow:
+  #         type: approval
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - assume-role-pre-production:
+  #         context: api-assume-role-housing-pre-production-context
+  #         requires:
+  #           - permit-pre-production-terraform-workflow
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - terraform-init-and-plan-pre-production:
+  #         requires:
+  #           - assume-role-pre-production
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - permit-pre-production-terraform-deployment:
+  #         type: approval
+  #         requires:
+  #           - terraform-init-and-plan-pre-production
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - terraform-apply-pre-production:
+  #         requires:
+  #           - permit-pre-production-terraform-deployment
+  #         filters:
+  #           branches:
+  #             only: master
+  # deploy-code-pre-production:
+  #   jobs:
+  #     - permit-pre-production-code-workflow:
+  #         type: approval
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - build-and-test:
+  #         requires:
+  #           - permit-pre-production-code-workflow
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - assume-role-pre-production:
+  #         context: api-assume-role-housing-pre-production-context
+  #         requires:
+  #           - build-and-test
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - migrate-database-pre-production:
+  #         requires:
+  #           - assume-role-pre-production
+  #         filters:
+  #           branches:
+  #             only: master
+  #     - deploy-to-pre-production:
+  #         context:
+  #           - "Serverless Framework"
+  #         requires:
+  #           - migrate-database-pre-production
+  #         filters:
+  #           branches:
+  #             only: master
