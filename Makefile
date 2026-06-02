@@ -1,4 +1,5 @@
-.PHONY: setup build serve shell test lint install-ef-tool
+.PHONY: setup build serve shell test lint install-ef-tool migrate-local-dev-database serve-local-dev-database serve-local-dev-api
+LOCAL_DEV_DB_PORT ?= 5434
 
 setup:
 	docker compose build
@@ -15,6 +16,14 @@ shell:
 test:
 	docker compose up test-database & docker compose build token-administration-api-test && docker compose up token-administration-api-test
 
+serve-local-dev-database:
+	LOCAL_DEV_DB_PORT=$(LOCAL_DEV_DB_PORT) docker compose up local-dev-database
+
+migrate-local-dev-database:
+	CONNECTION_STRING="Host=127.0.0.1;Port=$(LOCAL_DEV_DB_PORT);Username=postgres;Password=mypassword;Database=devdb" dotnet ef database update -p TokenAdministrationApi
+
+serve-local-dev-api:
+	LOCAL_DEV_DB_PORT=$(LOCAL_DEV_DB_PORT) docker compose up token-administration-api-dev
 lint:
 	-dotnet tool install -g dotnet-format
 	dotnet tool update -g dotnet-format

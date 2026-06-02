@@ -24,7 +24,9 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
         private Mock<IPostTokenUseCase> _mockPostTokenUseCase;
         private Mock<IGetAllTokensUseCase> _mockGetAllTokensUseCase;
         private Mock<IUpdateTokenValidityUseCase> _updateTokenValidity;
-
+        private Mock<IGetTokenOptionsUseCase> _getTokenOptionsUseCase;
+        private Mock<IPostApiUseCase> _postApiUseCase;
+        private Mock<IPostEndpointUseCase> _postEndpointUseCase;
 
         [SetUp]
         public void Setup()
@@ -32,9 +34,12 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
             _mockGetAllTokensUseCase = new Mock<IGetAllTokensUseCase>();
             _mockPostTokenUseCase = new Mock<IPostTokenUseCase>();
             _updateTokenValidity = new Mock<IUpdateTokenValidityUseCase>();
+            _getTokenOptionsUseCase = new Mock<IGetTokenOptionsUseCase>();
+            _postApiUseCase = new Mock<IPostApiUseCase>();
+            _postEndpointUseCase = new Mock<IPostEndpointUseCase>();
 
             _classUnderTest = new TokenAdministrationApiController(_mockGetAllTokensUseCase.Object, _mockPostTokenUseCase.Object,
-                _updateTokenValidity.Object);
+                _updateTokenValidity.Object, _getTokenOptionsUseCase.Object, _postApiUseCase.Object, _postEndpointUseCase.Object);
         }
         [Test]
         public void EnsureControllerListTokensMethodCallsGetAllTokensUseCase()
@@ -142,6 +147,144 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
             result.Should().NotBeNull();
             result.StatusCode.Should().Be(400);
             result.Value.Should().Be("One or more of the lookup ids provided is incorrect - foreign key violation message");
+        }
+
+        [Test]
+        public void EnsureControllerGetTokenOptionsMethodCallsUseCase()
+        {
+            var response = new TokenOptionsResponse();
+            _getTokenOptionsUseCase.Setup(x => x.Execute()).Returns(response);
+
+            _classUnderTest.GetTokenOptions();
+
+            _getTokenOptionsUseCase.Verify(x => x.Execute(), Times.Once);
+        }
+
+        [Test]
+        public void ControllerGetTokenOptionsMethodShouldReturnResponseOfTypeTokenOptionsResponse()
+        {
+            var response = new TokenOptionsResponse();
+            _getTokenOptionsUseCase.Setup(x => x.Execute()).Returns(response);
+
+            var result = _classUnderTest.GetTokenOptions() as OkObjectResult;
+
+            result.Should().NotBeNull();
+            result.Value.Should().BeOfType<TokenOptionsResponse>();
+        }
+
+        [Test]
+        public void ControllerGetTokenOptionsMethodShouldReturn200StatusCode()
+        {
+            var response = new TokenOptionsResponse();
+            _getTokenOptionsUseCase.Setup(x => x.Execute()).Returns(response);
+
+            var result = _classUnderTest.GetTokenOptions() as OkObjectResult;
+
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(200);
+        }
+
+        [Test]
+        public void ControllerGetTokenOptionsMethodCanReturnTokenOptions()
+        {
+            var expectedResponse = new TokenOptionsResponse
+            {
+                ConsumerTypes = new List<ConsumerTypeOptionResponse>
+                {
+                    new ConsumerTypeOptionResponse { Id = 1, TypeName = "token-options-consumer" }
+                },
+                ApiLookups = new List<ApiLookupOptionResponse>
+                {
+                    new ApiLookupOptionResponse { Id = 1, ApiName = "contracts-api", ApiGatewayId = "gw-test-1234567" }
+                },
+                ApiEndpoints = new List<ApiEndpointOptionResponse>
+                {
+                    new ApiEndpointOptionResponse { Id = 1, ApiLookupId = 1, EndpointName = "/api/v1/token-options-test" }
+                }
+            };
+            _getTokenOptionsUseCase.Setup(x => x.Execute()).Returns(expectedResponse);
+
+            var result = _classUnderTest.GetTokenOptions() as OkObjectResult;
+
+            result.Should().NotBeNull();
+            result.Value.Should().Be(expectedResponse);
+        }
+
+        [Test]
+        public void ControllerPostApiMethodShouldReturn201WithCreatedApi()
+        {
+            var request = new CreateApiLookupRequest { ApiName = "housing-api", ApiGatewayId = "gw-housing-dev" };
+            var response = new ApiLookupOptionResponse { Id = 1, ApiName = request.ApiName, ApiGatewayId = request.ApiGatewayId };
+            _postApiUseCase.Setup(x => x.Execute(request)).Returns(response);
+
+            var result = _classUnderTest.PostApi(request) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(201);
+            result.Value.Should().Be(response);
+        }
+
+        [Test]
+        public void ControllerPostApiMethodShouldReturn409IfApiAlreadyExists()
+        {
+            var request = new CreateApiLookupRequest { ApiName = "housing-api", ApiGatewayId = "gw-housing-dev" };
+            _postApiUseCase.Setup(x => x.Execute(request))
+                .Throws(new DuplicateApiException("API name or gateway ID already exists."));
+
+            var result = _classUnderTest.PostApi(request) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(409);
+            result.Value.Should().Be("API name or gateway ID already exists.");
+        }
+
+        [Test]
+        public void ControllerPostEndpointMethodShouldReturn201WithCreatedEndpoint()
+        {
+            var apiLookupId = 1;
+            var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
+            var response = new CreateEndpointResponse
+            {
+                Id = 10,
+                ApiLookupId = apiLookupId,
+                ApiName = "housing-api",
+                EndpointName = request.EndpointName
+            };
+            _postEndpointUseCase.Setup(x => x.Execute(apiLookupId, request)).Returns(response);
+
+            var result = _classUnderTest.PostEndpoint(apiLookupId, request) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(201);
+            result.Value.Should().Be(response);
+        }
+
+        [Test]
+        public void ControllerPostEndpointMethodShouldReturn400IfApiLookupDoesNotExist()
+        {
+            var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
+            _postEndpointUseCase.Setup(x => x.Execute(999, request))
+                .Throws(new LookupValueDoesNotExistException("API lookup was not found."));
+
+            var result = _classUnderTest.PostEndpoint(999, request) as BadRequestObjectResult;
+
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(400);
+            result.Value.Should().Be("API lookup was not found.");
+        }
+
+        [Test]
+        public void ControllerPostEndpointMethodShouldReturn409IfEndpointAlreadyExists()
+        {
+            var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
+            _postEndpointUseCase.Setup(x => x.Execute(1, request))
+                .Throws(new DuplicateEndpointException("Endpoint already exists for this API."));
+
+            var result = _classUnderTest.PostEndpoint(1, request) as ObjectResult;
+
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(409);
+            result.Value.Should().Be("Endpoint already exists for this API.");
         }
     }
 }

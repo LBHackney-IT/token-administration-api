@@ -1,5 +1,3 @@
-version: "3.2"
-
 services:
   token-administration-api:
     image: token-administration-api
@@ -41,3 +39,29 @@ services:
       - 5432:5432
     env_file:
       - database.env
+
+  token-administration-api-dev:
+    image: token-administration-api-dev
+    build:
+      context: TokenAdministrationApi/
+      dockerfile: ./Dockerfile
+    ports:
+      - 5001:3000
+    environment:
+      - CONNECTION_STRING=Host=host.docker.internal;Port=${LOCAL_DEV_DB_PORT:-5434};Database=devdb;Username=postgres;Password=mypassword
+      - jwtSecret=this_is_a_very_long_secret_key_123456
+    links:
+      - local-dev-database
+
+  local-dev-database:
+    image: postgres:16
+    container_name: dev-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: devdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mypassword
+    ports:
+      - "${LOCAL_DEV_DB_PORT:-5434}:5432"
+    volumes:
+      - ./postgres_data:/docker-entrypoint-initdb.d
