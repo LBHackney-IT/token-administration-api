@@ -17,7 +17,7 @@ data "aws_region" "current" {}
 
 locals {
   application_name = "auth token generator api"
-  parameter_store = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
+  parameter_store  = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
 }
 
 terraform {
@@ -56,27 +56,27 @@ module "postgres_db_staging" {
   source = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/database/postgres"
 
   environment_name = "staging"
-  project_name = "platform apis"
-  db_identifier = "auth-token-generator-staging-db"
+  project_name     = "platform apis"
+  db_identifier    = "auth-token-generator-staging-db"
 
-  vpc_id = data.aws_vpc.staging_vpc.id
-  subnet_ids = data.aws_subnet_ids.staging.ids
-  multi_az = false
+  vpc_id              = data.aws_vpc.staging_vpc.id
+  subnet_ids          = data.aws_subnet_ids.staging.ids
+  multi_az            = false
   publicly_accessible = false
 
-  db_instance_class = "db.t3.micro"
+  db_instance_class    = "db.t3.micro"
   db_allocated_storage = 20
-  storage_encrypted = false
+  storage_encrypted    = false
 
-  db_engine = "postgres"
-  db_engine_version = "16.8"
-  db_username = data.aws_ssm_parameter.auth_token_generator_postgres_username.value
-  db_password = data.aws_ssm_parameter.auth_token_generator_postgres_password.value
-  db_name = "auth_token_generator_db"
-  db_port  = 5102
+  db_engine         = "postgres"
+  db_engine_version = "16.13"
+  db_username       = data.aws_ssm_parameter.auth_token_generator_postgres_username.value
+  db_password       = data.aws_ssm_parameter.auth_token_generator_postgres_password.value
+  db_name           = "auth_token_generator_db"
+  db_port           = 5102
 
   copy_tags_to_snapshot = true
-  maintenance_window ="sun:10:00-sun:10:30"
+  maintenance_window    = "sun:10:00-sun:10:30"
 
   additional_tags = {
     BackupPolicy = "Stg"
