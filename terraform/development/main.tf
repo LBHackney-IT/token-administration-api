@@ -24,21 +24,21 @@ terraform {
 }
 
 provider "aws" {
-  region  = "eu-west-2"
+  region = "eu-west-2"
 }
 
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 locals {
-  application_name  = "auth token generator api"
-  parameter_store   = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
+  application_name = "auth token generator api"
+  parameter_store  = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
 
-  token_db_port         = 5101
-  token_db_name         = "auth_token_generator_db"
-  jumpbox_sg_id         = "sg-0a457bf4e6eda31de"
-  token_api_sg_id       = "sg-038858c252a355ffa"
-  new_authorizer_sg_id  = "sg-012c8d9cacad91fcb"
+  token_db_port        = 5101
+  token_db_name        = "auth_token_generator_db"
+  jumpbox_sg_id        = "sg-0a457bf4e6eda31de"
+  token_api_sg_id      = "sg-038858c252a355ffa"
+  new_authorizer_sg_id = "sg-012c8d9cacad91fcb"
 }
 
 /*    POSTGRES SET UP    */
@@ -68,27 +68,27 @@ module "postgres_db_development" {
   source = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/database/postgres"
 
   environment_name = "development"
-  project_name = "platform apis"
-  db_identifier = "auth-token-generator-dev-db"
+  project_name     = "platform apis"
+  db_identifier    = "auth-token-generator-dev-db"
 
-  vpc_id = data.aws_vpc.development_vpc.id
-  subnet_ids = data.aws_subnet_ids.development.ids
-  multi_az = false
+  vpc_id              = data.aws_vpc.development_vpc.id
+  subnet_ids          = data.aws_subnet_ids.development.ids
+  multi_az            = false
   publicly_accessible = false
 
-  db_instance_class = "db.t3.micro"
+  db_instance_class    = "db.t3.micro"
   db_allocated_storage = 20
-  storage_encrypted = false
+  storage_encrypted    = false
 
-  db_engine = "postgres"
-  db_engine_version = "16.8"
-  db_username = data.aws_ssm_parameter.auth_token_generator_postgres_username.value
-  db_password = data.aws_ssm_parameter.auth_token_generator_postgres_password.value
-  db_name   = local.token_db_name
-  db_port   = local.token_db_port
+  db_engine         = "postgres"
+  db_engine_version = "16.13"
+  db_username       = data.aws_ssm_parameter.auth_token_generator_postgres_username.value
+  db_password       = data.aws_ssm_parameter.auth_token_generator_postgres_password.value
+  db_name           = local.token_db_name
+  db_port           = local.token_db_port
 
   copy_tags_to_snapshot = true
-  maintenance_window ="sun:10:00-sun:10:30"
+  maintenance_window    = "sun:10:00-sun:10:30"
 
   additional_tags = {
     BackupPolicy = "Dev"
@@ -96,50 +96,50 @@ module "postgres_db_development" {
 }
 
 resource "aws_ssm_parameter" "postgres_hostname" {
-  name  = "/api-auth-token-generator/development/postgres-hostname"
-  type  = "String" 
-  
-  value = module.postgres_db_development.db_instance_endpoint 
+  name = "/api-auth-token-generator/development/postgres-hostname"
+  type = "String"
+
+  value = module.postgres_db_development.db_instance_endpoint
 
   tags = {
-    Project     = "platform apis"
+    Project = "platform apis"
   }
 }
 
 resource "aws_ssm_parameter" "postgres_database" {
-  name  = "/api-auth-token-generator/development/postgres-database"
-  type  = "String" 
-  
+  name = "/api-auth-token-generator/development/postgres-database"
+  type = "String"
+
   value = local.token_db_name
 
   tags = {
-    Project     = "platform apis"
+    Project = "platform apis"
   }
 }
 
 resource "aws_security_group_rule" "allow_jumpbox_traffic" {
-  type              = "ingress"
-  from_port         = local.token_db_port
-  to_port           = local.token_db_port
-  protocol          = "tcp"
+  type                     = "ingress"
+  from_port                = local.token_db_port
+  to_port                  = local.token_db_port
+  protocol                 = "tcp"
   source_security_group_id = local.jumpbox_sg_id
-  security_group_id = module.postgres_db_development.db_security_group_id
+  security_group_id        = module.postgres_db_development.db_security_group_id
 }
 
 resource "aws_security_group_rule" "allow_token_api_traffic" {
-  type              = "ingress"
-  from_port         = local.token_db_port
-  to_port           = local.token_db_port
-  protocol          = "tcp"
+  type                     = "ingress"
+  from_port                = local.token_db_port
+  to_port                  = local.token_db_port
+  protocol                 = "tcp"
   source_security_group_id = local.token_api_sg_id
-  security_group_id = module.postgres_db_development.db_security_group_id
+  security_group_id        = module.postgres_db_development.db_security_group_id
 }
 
 resource "aws_security_group_rule" "allow_new_authorizer_traffic" {
-  type              = "ingress"
-  from_port         = local.token_db_port
-  to_port           = local.token_db_port
-  protocol          = "tcp"
+  type                     = "ingress"
+  from_port                = local.token_db_port
+  to_port                  = local.token_db_port
+  protocol                 = "tcp"
   source_security_group_id = local.new_authorizer_sg_id
-  security_group_id = module.postgres_db_development.db_security_group_id
+  security_group_id        = module.postgres_db_development.db_security_group_id
 }
