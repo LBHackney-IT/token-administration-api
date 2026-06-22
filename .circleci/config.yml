@@ -371,11 +371,11 @@ workflows:
       - assume-role-development:
           context: api-assume-role-development-context
           requires: [ start-development-deployment ]
-      - migrate-database-development:
-          requires: [ assume-role-development ]
+      # - migrate-database-development:
+      #     requires: [ assume-role-development ]
       - deploy-to-development:
           context: [ "Serverless Framework" ]
-          requires: [ migrate-database-development ]
+          requires: [ assume-role-development ]
       - build-and-test:
           name: "Build and test master"
           filters:
@@ -387,22 +387,22 @@ workflows:
       - assume-role-staging:
           context: api-assume-role-staging-context
           requires: [ start-staging-deployment ]
-      - migrate-database-staging:
-          requires: [ assume-role-staging ]
+      # - migrate-database-staging:
+      #     requires: [ assume-role-staging ]
       - deploy-to-staging:
           context: [ "Serverless Framework" ]
-          requires: [ migrate-database-staging ]
+          requires: [ assume-role-staging ]
       - start-production-release:
           type: approval
           requires: [ deploy-to-staging ]
       - assume-role-production:
           context: api-assume-role-production-context
           requires: [ start-production-release ]
-      - migrate-database-production:
-          requires: [ assume-role-production ]
+      # - migrate-database-production:
+      #     requires: [ assume-role-production ]
       - deploy-to-production:
           context: [ "Serverless Framework" ]
-          requires: [ migrate-database-production ]
+          requires: [ assume-role-production ]
 
   deploy-terraform-pre-production:
     jobs:

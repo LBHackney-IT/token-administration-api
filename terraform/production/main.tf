@@ -17,7 +17,7 @@ data "aws_region" "current" {}
 
 locals {
   application_name = "auth token generator api"
-  parameter_store = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
+  parameter_store  = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
 }
 
 terraform {
@@ -56,29 +56,29 @@ module "postgres_db_production" {
   source = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/database/postgres"
 
   environment_name = "production"
-  project_name = "platform apis"
-  db_identifier = "auth-token-generator-prod-db"
+  project_name     = "platform apis"
+  db_identifier    = "auth-token-generator-prod-db"
 
-  vpc_id = data.aws_vpc.production_vpc.id
-  subnet_ids = data.aws_subnet_ids.production.ids
-  multi_az = true
+  vpc_id              = data.aws_vpc.production_vpc.id
+  subnet_ids          = data.aws_subnet_ids.production.ids
+  multi_az            = true
   publicly_accessible = false
 
-  db_instance_class = "db.t3.micro"
+  db_instance_class    = "db.t3.medium"
   db_allocated_storage = 20
-  storage_encrypted = false
+  storage_encrypted    = false
 
-  db_engine = "postgres"
-  db_engine_version = "16.8"
-  db_username = data.aws_ssm_parameter.auth_token_generator_postgres_username.value
-  db_password = data.aws_ssm_parameter.auth_token_generator_postgres_password.value
-  db_name = "auth_token_generator_db"
-  db_port  = 5100
+  db_engine         = "postgres"
+  db_engine_version = "16.13"
+  db_username       = data.aws_ssm_parameter.auth_token_generator_postgres_username.value
+  db_password       = data.aws_ssm_parameter.auth_token_generator_postgres_password.value
+  db_name           = "auth_token_generator_db"
+  db_port           = 5100
 
-  deletion_protection = true
-  copy_tags_to_snapshot = true
+  deletion_protection            = true
+  copy_tags_to_snapshot          = true
   db_allow_major_version_upgrade = true
-  maintenance_window ="sun:10:00-sun:10:30"
+  maintenance_window             = "tue:00:45-tue:01:45"
 
   additional_tags = {
     BackupPolicy = "Prod"
