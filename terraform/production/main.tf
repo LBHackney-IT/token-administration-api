@@ -78,7 +78,7 @@ module "postgres_db_production" {
   deletion_protection            = true
   copy_tags_to_snapshot          = true
   db_allow_major_version_upgrade = true
-  maintenance_window             = "tue:00:45-tue:01:45"
+  maintenance_window             = "sun:10:00-sun:10:30"
 
   additional_tags = {
     BackupPolicy = "Prod"
