@@ -49,10 +49,11 @@ resource "aws_security_group" "rds_proxy" {
   }
 }
 
+// RDS proxy for Postgres only ever exposes the default port 5432. It cannot be changed
 resource "aws_security_group_rule" "allow_authorizer_to_proxy" {
   type                     = "ingress"
-  from_port                = local.token_db_port
-  to_port                  = local.token_db_port
+  from_port                = 5432
+  to_port                  = 5432
   protocol                 = "tcp"
   source_security_group_id = local.new_authorizer_sg_id
   security_group_id        = aws_security_group.rds_proxy.id
