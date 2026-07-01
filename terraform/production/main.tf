@@ -18,6 +18,12 @@ data "aws_region" "current" {}
 locals {
   application_name = "auth token generator api"
   parameter_store  = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
+
+  token_db_port        = 5100
+  token_db_name        = "auth_token_generator_db"
+  jumpbox_sg_id        = "sg-071be695e594e8d2f"
+  token_api_sg_id      = "sg-0ede9ba9bc55868b6"
+  new_authorizer_sg_id = "sg-01a5769a96ffcfa25"
 }
 
 terraform {
@@ -83,4 +89,35 @@ module "postgres_db_production" {
   additional_tags = {
     BackupPolicy = "Prod"
   }
+}
+
+
+resource "aws_security_group_rule" "allow_jumpbox_traffic" {
+  type                     = "ingress"
+  from_port                = local.token_db_port
+  to_port                  = local.token_db_port
+  protocol                 = "tcp"
+  source_security_group_id = local.jumpbox_sg_id
+  security_group_id        = module.postgres_db_production.db_security_group_id
+  description              = "Allow jump box to connect to the database"
+}
+
+resource "aws_security_group_rule" "allow_token_api_traffic" {
+  type                     = "ingress"
+  from_port                = local.token_db_port
+  to_port                  = local.token_db_port
+  protocol                 = "tcp"
+  source_security_group_id = local.token_api_sg_id
+  security_group_id        = module.postgres_db_production.db_security_group_id
+  description              = "Allow token admin API and legacy authorizer to connect to the database. They are in the same security group"
+}
+
+resource "aws_security_group_rule" "allow_new_authorizer_traffic" {
+  type                     = "ingress"
+  from_port                = local.token_db_port
+  to_port                  = local.token_db_port
+  protocol                 = "tcp"
+  source_security_group_id = local.new_authorizer_sg_id
+  security_group_id        = module.postgres_db_production.db_security_group_id
+  description              = "Allow new authorizer to connect to the database"
 }
