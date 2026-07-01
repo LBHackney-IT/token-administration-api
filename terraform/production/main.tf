@@ -99,6 +99,7 @@ resource "aws_security_group_rule" "allow_jumpbox_traffic" {
   protocol                 = "tcp"
   source_security_group_id = local.jumpbox_sg_id
   security_group_id        = module.postgres_db_production.db_security_group_id
+  description              = "Allow jump box to connect to the database"
 }
 
 resource "aws_security_group_rule" "allow_token_api_traffic" {
@@ -108,6 +109,7 @@ resource "aws_security_group_rule" "allow_token_api_traffic" {
   protocol                 = "tcp"
   source_security_group_id = local.token_api_sg_id
   security_group_id        = module.postgres_db_production.db_security_group_id
+  description              = "Allow token admin API and legacy authorizer to connect to the database. They are in the same security group"
 }
 
 resource "aws_security_group_rule" "allow_new_authorizer_traffic" {
@@ -117,4 +119,5 @@ resource "aws_security_group_rule" "allow_new_authorizer_traffic" {
   protocol                 = "tcp"
   source_security_group_id = local.new_authorizer_sg_id
   security_group_id        = module.postgres_db_production.db_security_group_id
+  description              = "Allow new authorizer to connect to the database"
 }
