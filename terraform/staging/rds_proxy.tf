@@ -3,9 +3,6 @@ locals {
   db_instance_identifier             = "auth-token-generator-staging-db-db-staging"
   rds_proxy_secret_name              = "/api-auth-token-generator/staging/rds-proxy-db-credentials"
   rds_proxy_secret_placeholder_value = "tbc"
-  token_db_port                      = 5102
-  token_db_name                      = "auth_token_generator_db"
-  new_authorizer_sg_id               = "sg-01002f004e60edfe6"
 }
 
 resource "aws_secretsmanager_secret" "rds_proxy_db_credentials" {
