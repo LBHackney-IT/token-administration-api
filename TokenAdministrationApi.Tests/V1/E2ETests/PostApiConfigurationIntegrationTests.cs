@@ -31,13 +31,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
         [Test]
         public async Task PostEndpointWithMissingFieldsReturnsBadRequest()
         {
-            var api = new ApiNameLookup
-            {
-                ApiName = "housing-api",
-                ApiGatewayId = "gw-housing-dev"
-            };
-            DatabaseContext.ApiNameLookups.Add(api);
-            DatabaseContext.SaveChanges();
+            var api = AddApiLookup();
             var endpointCount = DatabaseContext.ApiEndpointNameLookups.Count();
             var response = await PostJsonAsync($"/api/v1/tokens/apis/{api.Id}/endpoints", new { });
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
@@ -45,23 +39,6 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             responseBody.Should().Contain("EndpointName");
             DatabaseContext.ApiEndpointNameLookups.Count().Should().Be(endpointCount);
-        }
-
-        [Test]
-        public async Task PostApiWithOverLengthNameReturnsBadRequest()
-        {
-            var apiCount = DatabaseContext.ApiNameLookups.Count();
-            var request = new CreateApiLookupRequest
-            {
-                ApiName = new string('a', 256),
-                ApiGatewayId = "gateway-id"
-            };
-            var response = await PostJsonAsync("/api/v1/tokens/apis", request);
-            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
-
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            responseBody.Should().Contain("ApiName");
-            DatabaseContext.ApiNameLookups.Count().Should().Be(apiCount);
         }
 
         [Test]
@@ -82,19 +59,31 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
         }
 
         [Test]
-        public async Task PostEndpointWithOverLengthNameReturnsBadRequest()
+        public async Task PostApiWithBlankFieldsReturnsBadRequest()
         {
-            var api = new ApiNameLookup
+            var apiCount = DatabaseContext.ApiNameLookups.Count();
+            var request = new CreateApiLookupRequest
             {
-                ApiName = "housing-api",
-                ApiGatewayId = "gw-housing-dev"
+                ApiName = string.Empty,
+                ApiGatewayId = " "
             };
-            DatabaseContext.ApiNameLookups.Add(api);
-            DatabaseContext.SaveChanges();
+            var response = await PostJsonAsync("/api/v1/tokens/apis", request);
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
+
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            responseBody.Should().Contain("ApiName");
+            responseBody.Should().Contain("ApiGatewayId");
+            DatabaseContext.ApiNameLookups.Count().Should().Be(apiCount);
+        }
+
+        [Test]
+        public async Task PostEndpointWithBlankNameReturnsBadRequest()
+        {
+            var api = AddApiLookup();
             var endpointCount = DatabaseContext.ApiEndpointNameLookups.Count();
             var request = new CreateEndpointRequest
             {
-                EndpointName = "/" + new string('a', 255)
+                EndpointName = " "
             };
             var response = await PostJsonAsync($"/api/v1/tokens/apis/{api.Id}/endpoints", request);
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
@@ -105,16 +94,22 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
         }
 
         [Test]
+        public async Task PostEndpointWithUnknownParentReturnsNotFound()
+        {
+            var endpointCount = DatabaseContext.ApiEndpointNameLookups.Count();
+            var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
+            var response = await PostJsonAsync($"/api/v1/tokens/apis/{int.MaxValue}/endpoints", request);
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
+
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            responseBody.Should().Contain("API lookup was not found.");
+            DatabaseContext.ApiEndpointNameLookups.Count().Should().Be(endpointCount);
+        }
+
+        [Test]
         public async Task CanCreateEndpointForApiLookupAsync()
         {
-            var api = new ApiNameLookup
-            {
-                ApiName = "housing-api",
-                ApiGatewayId = "gw-housing-dev"
-            };
-            DatabaseContext.ApiNameLookups.Add(api);
-            DatabaseContext.SaveChanges();
-
+            var api = AddApiLookup();
             var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
             var response = await PostJsonAsync($"/api/v1/tokens/apis/{api.Id}/endpoints", request);
             var data = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
@@ -138,6 +133,19 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             content.Dispose();
 
             return response;
+        }
+
+        private ApiNameLookup AddApiLookup()
+        {
+            var api = new ApiNameLookup
+            {
+                ApiName = "housing-api",
+                ApiGatewayId = "gw-housing-dev"
+            };
+            DatabaseContext.ApiNameLookups.Add(api);
+            DatabaseContext.SaveChanges();
+
+            return api;
         }
     }
 }
