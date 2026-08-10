@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -15,6 +16,95 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
     public class PostApiConfigurationIntegrationTests : IntegrationTests<Startup>
     {
         [Test]
+        public async Task PostApiWithMissingFieldsReturnsBadRequest()
+        {
+            var apiCount = DatabaseContext.ApiNameLookups.Count();
+            var response = await PostJsonAsync("/api/v1/tokens/apis", new { });
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
+
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            responseBody.Should().Contain("ApiName");
+            responseBody.Should().Contain("ApiGatewayId");
+            DatabaseContext.ApiNameLookups.Count().Should().Be(apiCount);
+        }
+
+        [Test]
+        public async Task PostEndpointWithMissingFieldsReturnsBadRequest()
+        {
+            var api = new ApiNameLookup
+            {
+                ApiName = "housing-api",
+                ApiGatewayId = "gw-housing-dev"
+            };
+            DatabaseContext.ApiNameLookups.Add(api);
+            DatabaseContext.SaveChanges();
+            var endpointCount = DatabaseContext.ApiEndpointNameLookups.Count();
+            var response = await PostJsonAsync($"/api/v1/tokens/apis/{api.Id}/endpoints", new { });
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
+
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            responseBody.Should().Contain("EndpointName");
+            DatabaseContext.ApiEndpointNameLookups.Count().Should().Be(endpointCount);
+        }
+
+        [Test]
+        public async Task PostApiWithOverLengthNameReturnsBadRequest()
+        {
+            var apiCount = DatabaseContext.ApiNameLookups.Count();
+            var request = new CreateApiLookupRequest
+            {
+                ApiName = new string('a', 256),
+                ApiGatewayId = "gateway-id"
+            };
+            var response = await PostJsonAsync("/api/v1/tokens/apis", request);
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
+
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            responseBody.Should().Contain("ApiName");
+            DatabaseContext.ApiNameLookups.Count().Should().Be(apiCount);
+        }
+
+        [Test]
+        public async Task PostApiWithOverLengthGatewayIdReturnsBadRequest()
+        {
+            var apiCount = DatabaseContext.ApiNameLookups.Count();
+            var request = new CreateApiLookupRequest
+            {
+                ApiName = "housing-api",
+                ApiGatewayId = new string('a', 17)
+            };
+            var response = await PostJsonAsync("/api/v1/tokens/apis", request);
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
+
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            responseBody.Should().Contain("ApiGatewayId");
+            DatabaseContext.ApiNameLookups.Count().Should().Be(apiCount);
+        }
+
+        [Test]
+        public async Task PostEndpointWithOverLengthNameReturnsBadRequest()
+        {
+            var api = new ApiNameLookup
+            {
+                ApiName = "housing-api",
+                ApiGatewayId = "gw-housing-dev"
+            };
+            DatabaseContext.ApiNameLookups.Add(api);
+            DatabaseContext.SaveChanges();
+            var endpointCount = DatabaseContext.ApiEndpointNameLookups.Count();
+            var request = new CreateEndpointRequest
+            {
+                EndpointName = "/" + new string('a', 255)
+            };
+            var response = await PostJsonAsync($"/api/v1/tokens/apis/{api.Id}/endpoints", request);
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
+
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            responseBody.Should().Contain("EndpointName");
+            DatabaseContext.ApiEndpointNameLookups.Count().Should().Be(endpointCount);
+        }
+
+        [Test]
         public async Task CanCreateEndpointForApiLookupAsync()
         {
             var api = new ApiNameLookup
@@ -26,16 +116,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             DatabaseContext.SaveChanges();
 
             var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
-            var content = new StringContent(
-                JsonConvert.SerializeObject(request),
-                Encoding.UTF8,
-                "application/json");
-
-            var response = await Client.PostAsync(
-                new Uri($"/api/v1/tokens/apis/{api.Id}/endpoints", UriKind.Relative),
-                content).ConfigureAwait(true);
-            content.Dispose();
-
+            var response = await PostJsonAsync($"/api/v1/tokens/apis/{api.Id}/endpoints", request);
             var data = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
             var endpointResponse = JsonConvert.DeserializeObject<CreateEndpointResponse>(data);
 
@@ -43,6 +124,20 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             endpointResponse.ApiLookupId.Should().Be(api.Id);
             endpointResponse.ApiName.Should().Be(api.ApiName);
             endpointResponse.EndpointName.Should().Be(request.EndpointName);
+        }
+
+        private async Task<HttpResponseMessage> PostJsonAsync(string path, object request)
+        {
+            var content = new StringContent(
+                JsonConvert.SerializeObject(request),
+                Encoding.UTF8,
+                "application/json");
+            var response = await Client.PostAsync(
+                new Uri(path, UriKind.Relative),
+                content).ConfigureAwait(true);
+            content.Dispose();
+
+            return response;
         }
     }
 }
