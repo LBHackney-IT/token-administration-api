@@ -98,10 +98,11 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
         [Test]
         public async Task PostEndpointWithUnknownParentReturnsNotFound()
         {
+            var nonExistentApiLookupId = int.MaxValue;
             var endpointCount = DatabaseContext.ApiEndpointNameLookups.Count();
             var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
             var response = await PostJsonAsync(
-                Client, $"/api/v1/tokens/apis/{int.MaxValue}/endpoints", request);
+                Client, $"/api/v1/tokens/apis/{nonExistentApiLookupId}/endpoints", request);
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
 
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
