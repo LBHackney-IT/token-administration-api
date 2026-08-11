@@ -110,9 +110,10 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
         }
 
         [Test]
-        public async Task CanCreateEndpointForApiLookupAsync()
+        public async Task PostEndpointWithValidInputsCreatesEndpoint()
         {
             var api = AddApiLookup(DatabaseContext);
+            var endpointCount = DatabaseContext.ApiEndpointNameLookups.Count();
             var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
             var response = await PostJsonAsync(
                 Client, $"/api/v1/tokens/apis/{api.Id}/endpoints", request);
@@ -123,6 +124,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             endpointResponse.ApiLookupId.Should().Be(api.Id);
             endpointResponse.ApiName.Should().Be(api.ApiName);
             endpointResponse.EndpointName.Should().Be(request.EndpointName);
+            DatabaseContext.ApiEndpointNameLookups.Count().Should().Be(endpointCount + 1);
         }
     }
 }
