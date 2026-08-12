@@ -22,8 +22,8 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            responseBody.Should().Contain("ApiName");
-            responseBody.Should().Contain("ApiGatewayId");
+            responseBody.Should().Contain("The ApiName field is required.");
+            responseBody.Should().Contain("The ApiGatewayId field is required.");
             DatabaseContext.ApiNameLookups.Count().Should().Be(apiCount);
         }
 
@@ -38,7 +38,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            responseBody.Should().Contain("EndpointName");
+            responseBody.Should().Contain("The EndpointName field is required.");
             DatabaseContext.ApiEndpointNameLookups.Count().Should().Be(endpointCount);
         }
 
