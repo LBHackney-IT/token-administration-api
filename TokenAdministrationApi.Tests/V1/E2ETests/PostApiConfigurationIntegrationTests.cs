@@ -16,8 +16,9 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
         public async Task PostApiWithMissingFieldsReturnsBadRequest()
         {
             var apiCount = DatabaseContext.ApiNameLookups.Count();
+            var emptyPostPayload = new { };
             var response = await PostJsonAsync(
-                Client, "/api/v1/tokens/apis", new { });
+                Client, "/api/v1/tokens/apis", emptyPostPayload);
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -31,8 +32,9 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
         {
             var api = AddApiLookup(DatabaseContext);
             var endpointCount = DatabaseContext.ApiEndpointNameLookups.Count();
+            var emptyPostPayload = new { };
             var response = await PostJsonAsync(
-                Client, $"/api/v1/tokens/apis/{api.Id}/endpoints", new { });
+                Client, $"/api/v1/tokens/apis/{api.Id}/endpoints", emptyPostPayload);
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -59,13 +61,13 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
         }
 
         [Test]
-        public async Task PostApiWithBlankFieldsReturnsBadRequest()
+        public async Task PostApiWithEmptyRequiredFieldsReturnsBadRequest([Values("", " ", null)] string emptyValue)
         {
             var apiCount = DatabaseContext.ApiNameLookups.Count();
             var request = new CreateApiLookupRequest
             {
-                ApiName = string.Empty,
-                ApiGatewayId = " "
+                ApiName = emptyValue,
+                ApiGatewayId = emptyValue
             };
             var response = await PostJsonAsync(
                 Client, "/api/v1/tokens/apis", request);
@@ -78,13 +80,13 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
         }
 
         [Test]
-        public async Task PostEndpointWithBlankNameReturnsBadRequest()
+        public async Task PostEndpointWithEmptyNameReturnsBadRequest([Values("", " ", null)] string emptyValue)
         {
             var api = AddApiLookup(DatabaseContext);
             var endpointCount = DatabaseContext.ApiEndpointNameLookups.Count();
             var request = new CreateEndpointRequest
             {
-                EndpointName = " "
+                EndpointName = emptyValue
             };
             var response = await PostJsonAsync(
                 Client, $"/api/v1/tokens/apis/{api.Id}/endpoints", request);
