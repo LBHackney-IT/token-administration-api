@@ -260,16 +260,17 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
         }
 
         [Test]
-        public void ControllerPostEndpointMethodShouldReturn400IfApiLookupDoesNotExist()
+        public void ControllerPostEndpointMethodShouldReturn404IfApiLookupDoesNotExist()
         {
+            var nonExistentApiLookupId = 999;
             var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
-            _postEndpointUseCase.Setup(x => x.Execute(999, request))
+            _postEndpointUseCase.Setup(x => x.Execute(nonExistentApiLookupId, request))
                 .Throws(new LookupValueDoesNotExistException("API lookup was not found."));
 
-            var result = _classUnderTest.PostEndpoint(999, request) as BadRequestObjectResult;
+            var result = _classUnderTest.PostEndpoint(nonExistentApiLookupId, request) as NotFoundObjectResult;
 
             result.Should().NotBeNull();
-            result.StatusCode.Should().Be(400);
+            result.StatusCode.Should().Be(404);
             result.Value.Should().Be("API lookup was not found.");
         }
 

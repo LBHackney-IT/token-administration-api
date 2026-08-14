@@ -125,7 +125,7 @@ namespace TokenAdministrationApi.V1.Controllers
             }
             catch (LookupValueDoesNotExistException ex)
             {
-                return BadRequest(ex.Message);
+                return NotFound(ex.Message);
             }
             catch (DuplicateEndpointException ex)
             {
