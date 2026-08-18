@@ -49,6 +49,22 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             response.StatusCode.Should().Be(400);
         }
 
+        [Test]
+        public async Task InvalidEnabledValuesReturnBadRequestWithoutUpdatingToken(
+            [Values("{}", "{\"enabled\": null}", "{\"enabled\": \"false\"}", "{\"enabled\": 0}")]
+            string request)
+        {
+            var savedToken = AddTokenToDatabase(true);
+
+            var response = await CallPatchEndpointWithRequest(savedToken.Id.ToString(), request)
+                .ConfigureAwait(true);
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
+
+            response.StatusCode.Should().Be(400);
+            responseBody.Should().Contain("errors");
+            DatabaseContext.Tokens.Find(savedToken.Id).Enabled.Should().BeTrue();
+        }
+
         private async Task<HttpResponseMessage> CallPatchEndpointToDisableToken(int? tokenId = null, string tokenStrId = null)
         {
             return await CallPatchEndpointWithRequest(tokenId?.ToString() ?? tokenStrId, request: "{\"enabled\": false }")
