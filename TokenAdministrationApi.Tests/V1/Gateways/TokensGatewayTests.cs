@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Linq;
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using Moq;
 using TokenAdministrationApi.V1.Gateways;
 using NUnit.Framework;
 using TokenAdministrationApi.V1.Infrastructure;
@@ -23,7 +25,8 @@ namespace TokenAdministrationApi.Tests.V1.Gateways
         [SetUp]
         public void Setup()
         {
-            _classUnderTest = new TokensGateway(DatabaseContext);
+            var logger = new Mock<ILogger<TokensGateway>>();
+            _classUnderTest = new TokensGateway(DatabaseContext, logger.Object);
         }
 
         [Test]

@@ -70,7 +70,7 @@ namespace TokenAdministrationApi.V1.Controllers
             }
             catch (LookupValueDoesNotExistException ex)
             {
-                return StatusCode(400, $"One or more of the lookup ids provided is incorrect - {ex.Message}");
+                return BadRequest(new { message = ex.Message });
             }
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using TokenAdministrationApi.V1.Boundary.Requests;
 using TokenAdministrationApi.V1.Domain;
 using TokenAdministrationApi.V1.Factories;
@@ -15,10 +16,12 @@ namespace TokenAdministrationApi.V1.Gateways
     public class TokensGateway : ITokensGateway
     {
         private readonly TokenDatabaseContext _databaseContext;
+        private readonly ILogger<TokensGateway> _logger;
 
-        public TokensGateway(TokenDatabaseContext databaseContext)
+        public TokensGateway(TokenDatabaseContext databaseContext, ILogger<TokensGateway> logger)
         {
             _databaseContext = databaseContext;
+            _logger = logger;
         }
 
         public List<AuthToken> GetAllTokens(int limit, int cursor, bool? enabled)
@@ -62,13 +65,30 @@ namespace TokenAdministrationApi.V1.Gateways
             }
             catch (DbUpdateException ex)
             {
+                var postgresException = ex.InnerException as Npgsql.PostgresException;
                 //23503 error code = foreign_key_violation
-                if (ex.InnerException.GetType() == typeof(Npgsql.PostgresException) && (((Npgsql.PostgresException) ex.InnerException).SqlState == "23503"))
+                if (postgresException?.SqlState == "23503")
                 {
-                    throw new LookupValueDoesNotExistException(ex.InnerException.Message);
+                    _logger.LogWarning(ex, "Token creation failed because a configuration selection does not exist.");
+                    throw new LookupValueDoesNotExistException(GetInvalidSelectionMessage(postgresException.ConstraintName));
                 }
             }
             return tokenToInsert.Id;
+        }
+
+        private static string GetInvalidSelectionMessage(string constraintName)
+        {
+            switch (constraintName)
+            {
+                case "FK_tokens_api_lookup_api_lookup_id":
+                    return "The selected API does not exist.";
+                case "FK_tokens_api_endpoint_lookup_api_endpoint_lookup_id":
+                    return "The selected API endpoint does not exist.";
+                case "FK_tokens_consumer_type_lookup_consumer_type_lookup":
+                    return "The selected consumer type does not exist.";
+                default:
+                    return "One or more selected configuration values do not exist.";
+            }
         }
 
         public int? UpdateToken(int tokenId, bool enabled)

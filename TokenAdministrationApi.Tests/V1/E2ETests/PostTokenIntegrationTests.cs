@@ -143,12 +143,13 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
         [Test]
         public async Task Return400IfLookupIdsDoNotExist()
         {
+            var (_, apiEndpointLookup, consumerTypeLookup) = AddLookupsToDatabase();
             var tokenRequest = new TokenRequestObject
             {
                 Consumer = _faker.Random.AlphaNumeric(10),
-                ConsumerType = _faker.Random.Int(5),
-                ApiEndpoint = _faker.Random.Int(0, 10),
-                ApiName = _faker.Random.Int(0, 10),
+                ConsumerType = consumerTypeLookup.Id,
+                ApiEndpoint = apiEndpointLookup.Id,
+                ApiName = int.MaxValue,
                 HttpMethodType = "GET",
                 AuthorizedBy = _faker.Person.Email,
                 Environment = _faker.Random.AlphaNumeric(5),
@@ -160,7 +161,10 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             var content = new StringContent(JsonConvert.SerializeObject(tokenRequest), Encoding.UTF8, "application/json");
             var response = await Client.PostAsync(url, content).ConfigureAwait(true);
             content.Dispose();
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
+
             response.StatusCode.Should().Be(400);
+            responseBody.Should().Be("{\"message\":\"The selected API does not exist.\"}");
         }
 
         private (ApiNameLookup, ApiEndpointNameLookup, ConsumerTypeLookup) AddLookupsToDatabase()
