@@ -70,7 +70,7 @@ namespace TokenAdministrationApi.V1.Controllers
             }
             catch (LookupValueDoesNotExistException ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(ex.Message);
             }
         }
 

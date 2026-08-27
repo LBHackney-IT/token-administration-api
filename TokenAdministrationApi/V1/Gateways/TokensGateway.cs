@@ -63,15 +63,12 @@ namespace TokenAdministrationApi.V1.Gateways
                 _databaseContext.Tokens.Add(tokenToInsert);
                 _databaseContext.SaveChanges();
             }
-            catch (DbUpdateException ex)
+            catch (DbUpdateException ex) when
+                (ex.InnerException is Npgsql.PostgresException postgresException && postgresException.SqlState == "23503")
             {
-                var postgresException = ex.InnerException as Npgsql.PostgresException;
                 //23503 error code = foreign_key_violation
-                if (postgresException?.SqlState == "23503")
-                {
-                    _logger.LogWarning(ex, "Token creation failed because a configuration selection does not exist.");
-                    throw new LookupValueDoesNotExistException(GetInvalidSelectionMessage(postgresException.ConstraintName));
-                }
+                _logger.LogWarning(ex, "Token creation failed because a configuration selection does not exist.");
+                throw new LookupValueDoesNotExistException(GetInvalidSelectionMessage(postgresException.ConstraintName));
             }
             return tokenToInsert.Id;
         }

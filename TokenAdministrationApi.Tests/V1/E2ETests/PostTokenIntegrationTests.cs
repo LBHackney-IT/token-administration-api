@@ -164,7 +164,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
 
             response.StatusCode.Should().Be(400);
-            responseBody.Should().Be("{\"message\":\"The selected API does not exist.\"}");
+            responseBody.Should().Be("\"The selected API does not exist.\"");
         }
 
         private (ApiNameLookup, ApiEndpointNameLookup, ConsumerTypeLookup) AddLookupsToDatabase()

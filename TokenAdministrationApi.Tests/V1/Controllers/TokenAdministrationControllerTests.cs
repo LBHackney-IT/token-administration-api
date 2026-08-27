@@ -146,7 +146,7 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
 
             result.Should().NotBeNull();
             result.StatusCode.Should().Be(400);
-            result.Value.Should().BeEquivalentTo(new { message = errorMessage });
+            result.Value.Should().Be(errorMessage);
         }
 
         [Test]
