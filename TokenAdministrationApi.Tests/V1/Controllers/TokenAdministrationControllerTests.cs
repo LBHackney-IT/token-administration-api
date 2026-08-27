@@ -140,13 +140,13 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
         [Test]
         public void GenerateTokenMethodShouldReturn400IfGatewayThrowsLookupDoesNotExistException()
         {
-            var errorMessage = "foreign key violation message";
+            var errorMessage = "The selected API does not exist.";
             _mockPostTokenUseCase.Setup(x => x.Execute(It.IsAny<TokenRequestObject>())).Throws(new LookupValueDoesNotExistException(errorMessage));
-            var result = _classUnderTest.GenerateToken(It.IsAny<TokenRequestObject>()) as ObjectResult;
+            var result = _classUnderTest.GenerateToken(It.IsAny<TokenRequestObject>()) as BadRequestObjectResult;
 
             result.Should().NotBeNull();
             result.StatusCode.Should().Be(400);
-            result.Value.Should().Be("One or more of the lookup ids provided is incorrect - foreign key violation message");
+            result.Value.Should().Be(errorMessage);
         }
 
         [Test]
