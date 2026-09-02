@@ -1,4 +1,5 @@
 using System.Net.Mime;
+using System.Threading.Tasks;
 using TokenAdministrationApi.V1.Boundary.Response;
 using TokenAdministrationApi.V1.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -92,9 +93,9 @@ namespace TokenAdministrationApi.V1.Controllers
 
         [ProducesResponseType(typeof(TokenOptionsResponse), StatusCodes.Status200OK)]
         [HttpGet("options")]
-        public IActionResult GetTokenOptions()
+        public async Task<IActionResult> GetTokenOptionsAsync()
         {
-            return Ok(_getTokenOptionsUseCase.Execute());
+            return Ok(await _getTokenOptionsUseCase.ExecuteAsync());
         }
 
         [Consumes(MediaTypeNames.Application.Json)]

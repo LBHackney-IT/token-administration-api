@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -219,7 +220,7 @@ namespace TokenAdministrationApi.Tests.V1.Gateways
         }
 
         [Test]
-        public void ShouldGetTokenOptionsFromDatabase()
+        public async Task ShouldGetTokenOptionsFromDatabase()
         {
             var consumerType = new ConsumerTypeLookup
             {
@@ -244,7 +245,7 @@ namespace TokenAdministrationApi.Tests.V1.Gateways
             DatabaseContext.ApiEndpointNameLookups.Add(apiEndpoint);
             DatabaseContext.SaveChanges();
 
-            var result = _classUnderTest.GetTokenOptions();
+            var result = await _classUnderTest.GetTokenOptionsAsync();
 
             result.Should().NotBeNull();
             result.ConsumerTypes.Should().ContainSingle();

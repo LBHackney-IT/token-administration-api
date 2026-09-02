@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using TokenAdministrationApi.V1.Boundary.Response;
 using TokenAdministrationApi.V1.Gateways;
 using TokenAdministrationApi.V1.UseCase.Interfaces;
@@ -12,9 +13,9 @@ namespace TokenAdministrationApi.V1.UseCase
             _gateway = gateway;
         }
 
-        public TokenOptionsResponse Execute()
+        public Task<TokenOptionsResponse> ExecuteAsync()
         {
-            return _gateway.GetTokenOptions();
+            return _gateway.GetTokenOptionsAsync();
         }
     }
 }
