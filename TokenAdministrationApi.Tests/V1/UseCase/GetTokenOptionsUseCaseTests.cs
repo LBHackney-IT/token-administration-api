@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
@@ -20,18 +21,18 @@ namespace TokenAdministrationApi.Tests.V1.UseCase
         }
 
         [Test]
-        public void EnsureGetTokenOptionsUseCaseCallsGateway()
+        public async Task EnsureGetTokenOptionsUseCaseCallsGateway()
         {
             var response = new TokenOptionsResponse();
-            _mockGateway.Setup(x => x.GetTokenOptions()).Returns(response);
+            _mockGateway.Setup(x => x.GetTokenOptionsAsync()).ReturnsAsync(response);
 
-            _classUnderTest.Execute();
+            await _classUnderTest.ExecuteAsync();
 
-            _mockGateway.Verify(x => x.GetTokenOptions(), Times.Once);
+            _mockGateway.Verify(x => x.GetTokenOptionsAsync(), Times.Once);
         }
 
         [Test]
-        public void GetsTokenOptionsFromTheGateway()
+        public async Task GetsTokenOptionsFromTheGateway()
         {
             var expectedResponse = new TokenOptionsResponse
             {
@@ -39,9 +40,11 @@ namespace TokenAdministrationApi.Tests.V1.UseCase
                 ApiLookups = { new ApiLookupOptionResponse { Id = 1, ApiName = "contracts-api", ApiGatewayId = "gw-test-1234567" } },
                 ApiEndpoints = { new ApiEndpointOptionResponse { Id = 1, ApiLookupId = 1, EndpointName = "/api/v1/token-options-test" } }
             };
-            _mockGateway.Setup(x => x.GetTokenOptions()).Returns(expectedResponse);
+            _mockGateway.Setup(x => x.GetTokenOptionsAsync()).ReturnsAsync(expectedResponse);
 
-            _classUnderTest.Execute().Should().BeEquivalentTo(expectedResponse);
+            var result = await _classUnderTest.ExecuteAsync();
+
+            result.Should().BeEquivalentTo(expectedResponse);
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Globalization;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TokenAdministrationApi.V1.Boundary.Requests;
@@ -97,27 +98,27 @@ namespace TokenAdministrationApi.V1.Gateways
             return token.Id;
         }
 
-        public TokenOptionsResponse GetTokenOptions()
+        public async Task<TokenOptionsResponse> GetTokenOptionsAsync()
         {
             var tokenOptions = new TokenOptionsResponse
             {
-                ConsumerTypes = _databaseContext.ConsumerTypeLookups.Select(consumerType => new ConsumerTypeOptionResponse
+                ConsumerTypes = await _databaseContext.ConsumerTypeLookups.Select(consumerType => new ConsumerTypeOptionResponse
                 {
                     Id = consumerType.Id,
                     TypeName = consumerType.TypeName
-                }).ToList(),
-                ApiLookups = _databaseContext.ApiNameLookups.Select(api => new ApiLookupOptionResponse
+                }).ToListAsync(),
+                ApiLookups = await _databaseContext.ApiNameLookups.Select(api => new ApiLookupOptionResponse
                 {
                     Id = api.Id,
                     ApiName = api.ApiName,
                     ApiGatewayId = api.ApiGatewayId
-                }).ToList(),
-                ApiEndpoints = _databaseContext.ApiEndpointNameLookups.Select(endpoint => new ApiEndpointOptionResponse
+                }).ToListAsync(),
+                ApiEndpoints = await _databaseContext.ApiEndpointNameLookups.Select(endpoint => new ApiEndpointOptionResponse
                 {
                     Id = endpoint.Id,
                     ApiLookupId = endpoint.ApiLookupId,
                     EndpointName = endpoint.ApiEndpointName
-                }).ToList()
+                }).ToListAsync()
             };
             return tokenOptions;
         }
