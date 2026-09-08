@@ -98,7 +98,7 @@ namespace TokenAdministrationApi.V1.Gateways
             return token.Id;
         }
 
-        public async Task<TokenOptionsResponse> GetTokenOptionsAsync()
+        public async Task<TokenOptionsResponse> GetTokenOptions()
         {
             var tokenOptions = new TokenOptionsResponse
             {

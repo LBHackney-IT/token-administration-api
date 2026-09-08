@@ -93,9 +93,9 @@ namespace TokenAdministrationApi.V1.Controllers
 
         [ProducesResponseType(typeof(TokenOptionsResponse), StatusCodes.Status200OK)]
         [HttpGet("options")]
-        public async Task<IActionResult> GetTokenOptionsAsync()
+        public async Task<IActionResult> GetTokenOptions()
         {
-            return Ok(await _getTokenOptionsUseCase.ExecuteAsync());
+            return Ok(await _getTokenOptionsUseCase.Execute());
         }
 
         [Consumes(MediaTypeNames.Application.Json)]

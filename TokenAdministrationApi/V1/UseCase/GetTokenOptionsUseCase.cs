@@ -13,9 +13,9 @@ namespace TokenAdministrationApi.V1.UseCase
             _gateway = gateway;
         }
 
-        public Task<TokenOptionsResponse> ExecuteAsync()
+        public async Task<TokenOptionsResponse> Execute()
         {
-            return _gateway.GetTokenOptionsAsync();
+            return await _gateway.GetTokenOptions();
         }
     }
 }

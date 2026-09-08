@@ -5,6 +5,6 @@ namespace TokenAdministrationApi.V1.UseCase.Interfaces
 {
     public interface IGetTokenOptionsUseCase
     {
-        Task<TokenOptionsResponse> ExecuteAsync();
+        Task<TokenOptionsResponse> Execute();
     }
 }

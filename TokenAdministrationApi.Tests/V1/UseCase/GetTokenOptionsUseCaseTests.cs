@@ -24,11 +24,11 @@ namespace TokenAdministrationApi.Tests.V1.UseCase
         public async Task EnsureGetTokenOptionsUseCaseCallsGateway()
         {
             var response = new TokenOptionsResponse();
-            _mockGateway.Setup(x => x.GetTokenOptionsAsync()).ReturnsAsync(response);
+            _mockGateway.Setup(x => x.GetTokenOptions()).ReturnsAsync(response);
 
-            await _classUnderTest.ExecuteAsync();
+            await _classUnderTest.Execute();
 
-            _mockGateway.Verify(x => x.GetTokenOptionsAsync(), Times.Once);
+            _mockGateway.Verify(x => x.GetTokenOptions(), Times.Once);
         }
 
         [Test]
@@ -40,9 +40,9 @@ namespace TokenAdministrationApi.Tests.V1.UseCase
                 ApiLookups = { new ApiLookupOptionResponse { Id = 1, ApiName = "contracts-api", ApiGatewayId = "gw-test-1234567" } },
                 ApiEndpoints = { new ApiEndpointOptionResponse { Id = 1, ApiLookupId = 1, EndpointName = "/api/v1/token-options-test" } }
             };
-            _mockGateway.Setup(x => x.GetTokenOptionsAsync()).ReturnsAsync(expectedResponse);
+            _mockGateway.Setup(x => x.GetTokenOptions()).ReturnsAsync(expectedResponse);
 
-            var result = await _classUnderTest.ExecuteAsync();
+            var result = await _classUnderTest.Execute();
 
             result.Should().BeEquivalentTo(expectedResponse);
         }

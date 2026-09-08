@@ -245,7 +245,7 @@ namespace TokenAdministrationApi.Tests.V1.Gateways
             DatabaseContext.ApiEndpointNameLookups.Add(apiEndpoint);
             DatabaseContext.SaveChanges();
 
-            var result = await _classUnderTest.GetTokenOptionsAsync();
+            var result = await _classUnderTest.GetTokenOptions();
 
             result.Should().NotBeNull();
             result.ConsumerTypes.Should().ContainSingle();

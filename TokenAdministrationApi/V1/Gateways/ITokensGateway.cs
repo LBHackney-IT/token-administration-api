@@ -11,7 +11,7 @@ namespace TokenAdministrationApi.V1.Gateways
         List<AuthToken> GetAllTokens(int limit, int cursor, bool? enabled);
         int GenerateToken(TokenRequestObject tokenRequestObject);
         int? UpdateToken(int tokenId, bool enabled);
-        Task<TokenOptionsResponse> GetTokenOptionsAsync();
+        Task<TokenOptionsResponse> GetTokenOptions();
 
         ApiLookupOptionResponse CreateApiLookup(CreateApiLookupRequest request);
 
