@@ -150,42 +150,42 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
         }
 
         [Test]
-        public void EnsureControllerGetTokenOptionsMethodCallsUseCase()
+        public async Task EnsureControllerGetTokenOptionsMethodCallsUseCase()
         {
             var response = new TokenOptionsResponse();
-            _getTokenOptionsUseCase.Setup(x => x.Execute()).Returns(response);
+            _getTokenOptionsUseCase.Setup(x => x.Execute()).ReturnsAsync(response);
 
-            _classUnderTest.GetTokenOptions();
+            await _classUnderTest.GetTokenOptions();
 
             _getTokenOptionsUseCase.Verify(x => x.Execute(), Times.Once);
         }
 
         [Test]
-        public void ControllerGetTokenOptionsMethodShouldReturnResponseOfTypeTokenOptionsResponse()
+        public async Task ControllerGetTokenOptionsMethodShouldReturnResponseOfTypeTokenOptionsResponse()
         {
             var response = new TokenOptionsResponse();
-            _getTokenOptionsUseCase.Setup(x => x.Execute()).Returns(response);
+            _getTokenOptionsUseCase.Setup(x => x.Execute()).ReturnsAsync(response);
 
-            var result = _classUnderTest.GetTokenOptions() as OkObjectResult;
+            var result = await _classUnderTest.GetTokenOptions() as OkObjectResult;
 
             result.Should().NotBeNull();
             result.Value.Should().BeOfType<TokenOptionsResponse>();
         }
 
         [Test]
-        public void ControllerGetTokenOptionsMethodShouldReturn200StatusCode()
+        public async Task ControllerGetTokenOptionsMethodShouldReturn200StatusCode()
         {
             var response = new TokenOptionsResponse();
-            _getTokenOptionsUseCase.Setup(x => x.Execute()).Returns(response);
+            _getTokenOptionsUseCase.Setup(x => x.Execute()).ReturnsAsync(response);
 
-            var result = _classUnderTest.GetTokenOptions() as OkObjectResult;
+            var result = await _classUnderTest.GetTokenOptions() as OkObjectResult;
 
             result.Should().NotBeNull();
             result.StatusCode.Should().Be(200);
         }
 
         [Test]
-        public void ControllerGetTokenOptionsMethodCanReturnTokenOptions()
+        public async Task ControllerGetTokenOptionsMethodCanReturnTokenOptions()
         {
             var expectedResponse = new TokenOptionsResponse
             {
@@ -202,9 +202,9 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
                     new ApiEndpointOptionResponse { Id = 1, ApiLookupId = 1, EndpointName = "/api/v1/token-options-test" }
                 }
             };
-            _getTokenOptionsUseCase.Setup(x => x.Execute()).Returns(expectedResponse);
+            _getTokenOptionsUseCase.Setup(x => x.Execute()).ReturnsAsync(expectedResponse);
 
-            var result = _classUnderTest.GetTokenOptions() as OkObjectResult;
+            var result = await _classUnderTest.GetTokenOptions() as OkObjectResult;
 
             result.Should().NotBeNull();
             result.Value.Should().Be(expectedResponse);
