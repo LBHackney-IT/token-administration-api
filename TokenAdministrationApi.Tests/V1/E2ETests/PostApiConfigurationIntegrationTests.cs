@@ -61,6 +61,26 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
         }
 
         [Test]
+        public async Task PostApiWithValidInputsCreatesApi()
+        {
+            var apiCount = DatabaseContext.ApiNameLookups.Count();
+            var request = new CreateApiLookupRequest
+            {
+                ApiName = "housing-api",
+                ApiGatewayId = "gw-housing-dev"
+            };
+            var response = await PostJsonAsync(
+                Client, "/api/v1/tokens/apis", request);
+            var data = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
+            var apiResponse = JsonConvert.DeserializeObject<ApiLookupOptionResponse>(data);
+
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
+            apiResponse.ApiName.Should().Be(request.ApiName);
+            apiResponse.ApiGatewayId.Should().Be(request.ApiGatewayId);
+            DatabaseContext.ApiNameLookups.Count().Should().Be(apiCount + 1);
+        }
+
+        [Test]
         public async Task PostApiWithEmptyRequiredFieldsReturnsBadRequest([Values("", " ", null)] string emptyValue)
         {
             var apiCount = DatabaseContext.ApiNameLookups.Count();

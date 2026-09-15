@@ -1,10 +1,9 @@
-using TokenAdministrationApi.V1.Boundary.Requests;
-using TokenAdministrationApi.V1.Boundary.Response;
+using TokenAdministrationApi.V1.Domain;
 
 namespace TokenAdministrationApi.V1.UseCase.Interfaces
 {
     public interface IPostApiUseCase
     {
-        ApiLookupOptionResponse Execute(CreateApiLookupRequest request);
+        ApiLookupOption Execute(ApiLookupOption api);
     }
 }
