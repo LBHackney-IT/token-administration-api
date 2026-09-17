@@ -11,7 +11,7 @@ using TokenAdministrationApi.V1.UseCase.Interfaces;
 namespace TokenAdministrationApi.V1.Controllers
 {
     [ApiController]
-    [Route("api/v1/tokens")]
+    [Route("api/v1/token-configuration")]
     [Produces("application/json")]
     [ApiVersion("1.0")]
     public class TokenConfigurationController : BaseController
@@ -28,6 +28,10 @@ namespace TokenAdministrationApi.V1.Controllers
             _postEndpointUseCase = postEndpointUseCase;
         }
 
+        /// <summary>
+        /// Returns the consumer types, APIs and endpoints available when creating a token.
+        /// </summary>
+        /// <response code="200">Returns the available token configuration options.</response>
         [ProducesResponseType(typeof(TokenOptionsResponse), StatusCodes.Status200OK)]
         [HttpGet("options")]
         public async Task<IActionResult> GetTokenOptions()
@@ -36,6 +40,12 @@ namespace TokenAdministrationApi.V1.Controllers
             return Ok(tokenOptions.ToResponse());
         }
 
+        /// <summary>
+        /// Creates an API that can be selected when creating a token.
+        /// </summary>
+        /// <response code="201">The API was created successfully.</response>
+        /// <response code="400">One or more request values are invalid or missing.</response>
+        /// <response code="409">An API with the same name or API Gateway ID already exists.</response>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(ApiLookupOptionResponse), StatusCodes.Status201Created)]
         [HttpPost("apis")]
@@ -52,6 +62,13 @@ namespace TokenAdministrationApi.V1.Controllers
             }
         }
 
+        /// <summary>
+        /// Creates an endpoint for an existing API.
+        /// </summary>
+        /// <response code="201">The endpoint was created successfully.</response>
+        /// <response code="400">One or more request values are invalid or missing.</response>
+        /// <response code="404">The selected API could not be found.</response>
+        /// <response code="409">The endpoint already exists for the selected API.</response>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(CreateEndpointResponse), StatusCodes.Status201Created)]
         [HttpPost("apis/{apiLookupId}/endpoints")]
