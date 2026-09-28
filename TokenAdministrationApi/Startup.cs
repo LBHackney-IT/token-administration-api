@@ -121,6 +121,7 @@ namespace TokenAdministrationApi
         private static void RegisterGateways(IServiceCollection services)
         {
             services.AddScoped<ITokensGateway, TokensGateway>();
+            services.AddScoped<ITokenConfigurationGateway, TokenConfigurationGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)

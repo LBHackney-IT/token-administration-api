@@ -18,7 +18,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             var apiCount = DatabaseContext.ApiNameLookups.Count();
             var emptyPostPayload = new { };
             var response = await PostJsonAsync(
-                Client, "/api/v1/tokens/apis", emptyPostPayload);
+                Client, "/api/v1/token-configuration/apis", emptyPostPayload);
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -34,7 +34,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             var endpointCount = DatabaseContext.ApiEndpointNameLookups.Count();
             var emptyPostPayload = new { };
             var response = await PostJsonAsync(
-                Client, $"/api/v1/tokens/apis/{api.Id}/endpoints", emptyPostPayload);
+                Client, $"/api/v1/token-configuration/apis/{api.Id}/endpoints", emptyPostPayload);
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -52,12 +52,32 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
                 ApiGatewayId = new string('a', 17)
             };
             var response = await PostJsonAsync(
-                Client, "/api/v1/tokens/apis", request);
+                Client, "/api/v1/token-configuration/apis", request);
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             responseBody.Should().Contain("ApiGatewayId");
             DatabaseContext.ApiNameLookups.Count().Should().Be(apiCount);
+        }
+
+        [Test]
+        public async Task PostApiWithValidInputsCreatesApi()
+        {
+            var apiCount = DatabaseContext.ApiNameLookups.Count();
+            var request = new CreateApiLookupRequest
+            {
+                ApiName = "housing-api",
+                ApiGatewayId = "gw-housing-dev"
+            };
+            var response = await PostJsonAsync(
+                Client, "/api/v1/token-configuration/apis", request);
+            var data = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
+            var apiResponse = JsonConvert.DeserializeObject<ApiLookupOptionResponse>(data);
+
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
+            apiResponse.ApiName.Should().Be(request.ApiName);
+            apiResponse.ApiGatewayId.Should().Be(request.ApiGatewayId);
+            DatabaseContext.ApiNameLookups.Count().Should().Be(apiCount + 1);
         }
 
         [Test]
@@ -70,7 +90,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
                 ApiGatewayId = emptyValue
             };
             var response = await PostJsonAsync(
-                Client, "/api/v1/tokens/apis", request);
+                Client, "/api/v1/token-configuration/apis", request);
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -89,7 +109,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
                 EndpointName = emptyValue
             };
             var response = await PostJsonAsync(
-                Client, $"/api/v1/tokens/apis/{api.Id}/endpoints", request);
+                Client, $"/api/v1/token-configuration/apis/{api.Id}/endpoints", request);
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -104,7 +124,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             var endpointCount = DatabaseContext.ApiEndpointNameLookups.Count();
             var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
             var response = await PostJsonAsync(
-                Client, $"/api/v1/tokens/apis/{nonExistentApiLookupId}/endpoints", request);
+                Client, $"/api/v1/token-configuration/apis/{nonExistentApiLookupId}/endpoints", request);
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
 
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -119,7 +139,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             var endpointCount = DatabaseContext.ApiEndpointNameLookups.Count();
             var request = new CreateEndpointRequest { EndpointName = "/tenancies" };
             var response = await PostJsonAsync(
-                Client, $"/api/v1/tokens/apis/{api.Id}/endpoints", request);
+                Client, $"/api/v1/token-configuration/apis/{api.Id}/endpoints", request);
             var data = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
             var endpointResponse = JsonConvert.DeserializeObject<CreateEndpointResponse>(data);
 

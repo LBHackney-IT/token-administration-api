@@ -1,5 +1,4 @@
 using System.Net.Mime;
-using System.Threading.Tasks;
 using TokenAdministrationApi.V1.Boundary.Response;
 using TokenAdministrationApi.V1.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -19,19 +18,13 @@ namespace TokenAdministrationApi.V1.Controllers
         private readonly IGetAllTokensUseCase _getAllTokensUseCase;
         private readonly IPostTokenUseCase _postTokenUseCase;
         private readonly IUpdateTokenValidityUseCase _updateTokenValidity;
-        private readonly IGetTokenOptionsUseCase _getTokenOptionsUseCase;
-        private readonly IPostApiUseCase _postApiUsecase;
-        private readonly IPostEndpointUseCase _postEndpointUsecase;
 
         public TokenAdministrationApiController(IGetAllTokensUseCase getAllTokensUseCase, IPostTokenUseCase postTokenUseCase,
-            IUpdateTokenValidityUseCase updateTokenValidity, IGetTokenOptionsUseCase tokenOptionsUseCase, IPostApiUseCase postApiUsecase, IPostEndpointUseCase postEndpointUsecase)
+            IUpdateTokenValidityUseCase updateTokenValidity)
         {
             _getAllTokensUseCase = getAllTokensUseCase;
             _postTokenUseCase = postTokenUseCase;
             _updateTokenValidity = updateTokenValidity;
-            _getTokenOptionsUseCase = tokenOptionsUseCase;
-            _postApiUsecase = postApiUsecase;
-            _postEndpointUsecase = postEndpointUsecase;
         }
 
         /// <summary>
@@ -91,47 +84,5 @@ namespace TokenAdministrationApi.V1.Controllers
             return NoContent();
         }
 
-        [ProducesResponseType(typeof(TokenOptionsResponse), StatusCodes.Status200OK)]
-        [HttpGet("options")]
-        public async Task<IActionResult> GetTokenOptions()
-        {
-            return Ok(await _getTokenOptionsUseCase.Execute());
-        }
-
-        [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(typeof(ApiLookupOptionResponse), StatusCodes.Status201Created)]
-        [HttpPost("apis")]
-        public IActionResult PostApi([FromBody] CreateApiLookupRequest request)
-        {
-            try
-            {
-                var response = _postApiUsecase.Execute(request);
-                return StatusCode(StatusCodes.Status201Created, response);
-            }
-            catch (DuplicateApiException ex)
-            {
-                return Conflict(ex.Message);
-            }
-        }
-
-        [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(typeof(CreateEndpointResponse), StatusCodes.Status201Created)]
-        [HttpPost("apis/{apiLookupId}/endpoints")]
-        public IActionResult PostEndpoint(int apiLookupId, [FromBody] CreateEndpointRequest request)
-        {
-            try
-            {
-                var response = _postEndpointUsecase.Execute(apiLookupId, request);
-                return StatusCode(StatusCodes.Status201Created, response);
-            }
-            catch (LookupValueDoesNotExistException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (DuplicateEndpointException ex)
-            {
-                return Conflict(ex.Message);
-            }
-        }
     }
 }

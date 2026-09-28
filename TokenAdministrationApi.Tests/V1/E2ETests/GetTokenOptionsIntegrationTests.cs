@@ -36,7 +36,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             DatabaseContext.ApiEndpointNameLookups.Add(apiEndpoint);
             DatabaseContext.SaveChanges();
 
-            var url = new Uri("/api/v1/tokens/options", UriKind.Relative);
+            var url = new Uri("/api/v1/token-configuration/options", UriKind.Relative);
             var response = await Client.GetAsync(url).ConfigureAwait(true);
 
             response.StatusCode.Should().Be(200);
