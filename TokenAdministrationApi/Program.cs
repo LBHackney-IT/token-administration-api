@@ -6,6 +6,7 @@ namespace TokenAdministrationApi
 {
     public static class Program
     {
+#pragma warning disable ASPDEPR008
         public static void Main(string[] args)
         {
             CreateWebHostBuilder(args).Build().Run();
@@ -14,5 +15,6 @@ namespace TokenAdministrationApi
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>();
+#pragma warning restore ASPDEPR008
     }
 }
