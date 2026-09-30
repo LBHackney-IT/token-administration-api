@@ -35,7 +35,7 @@ namespace TokenAdministrationApi.Tests
             _factory = new MockWebApplicationFactory<TStartup>(_connection);
             Client = _factory.CreateClient();
 
-            DatabaseContext = _factory.Server.Host.Services.GetRequiredService<TokenDatabaseContext>();
+            DatabaseContext = _factory.Services.GetRequiredService<TokenDatabaseContext>();
 
             _transaction = _connection.BeginTransaction(IsolationLevel.RepeatableRead);
             DatabaseContext.Database.UseTransaction(_transaction);
