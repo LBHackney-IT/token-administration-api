@@ -35,9 +35,7 @@ namespace TokenAdministrationApi.Tests
             _factory = new MockWebApplicationFactory<TStartup>(_connection);
             Client = _factory.CreateClient();
 
-#pragma warning disable ASPDEPR008
-            DatabaseContext = _factory.Server.Host.Services.GetRequiredService<TokenDatabaseContext>();
-#pragma warning restore ASPDEPR008
+            DatabaseContext = _factory.Services.GetRequiredService<TokenDatabaseContext>();
 
             _transaction = _connection.BeginTransaction(IsolationLevel.RepeatableRead);
             DatabaseContext.Database.UseTransaction(_transaction);
