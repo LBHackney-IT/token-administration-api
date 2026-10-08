@@ -121,6 +121,7 @@ namespace TokenAdministrationApi
         private static void RegisterGateways(IServiceCollection services)
         {
             services.AddScoped<ITokensGateway, TokensGateway>();
+            services.AddScoped<ITokenConfigurationGateway, TokenConfigurationGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -129,6 +130,10 @@ namespace TokenAdministrationApi
             services.AddScoped<IPostTokenUseCase, PostTokenUseCase>();
             services.AddScoped<IGenerateJwtUseCase, GenerateJwtUseCase>();
             services.AddScoped<IUpdateTokenValidityUseCase, UpdateTokenValidityUseCase>();
+            services.AddScoped<IGetTokenOptionsUseCase, GetTokenOptionsUseCase>();
+            services.AddScoped<IPostApiUseCase, PostApiUseCase>();
+            services.AddScoped<IPostEndpointUseCase, PostEndpointUseCase>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

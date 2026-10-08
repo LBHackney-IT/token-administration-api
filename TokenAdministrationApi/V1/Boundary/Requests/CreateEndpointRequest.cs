@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TokenAdministrationApi.V1.Boundary.Requests
 {
-    public class UpdateTokenRequest
+    public class CreateEndpointRequest
     {
         [Required]
-        public bool? Enabled { get; set; }
+        public string EndpointName { get; set; }
     }
 }

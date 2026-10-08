@@ -3,7 +3,6 @@ using TokenAdministrationApi.V1.Boundary.Response;
 using TokenAdministrationApi.V1.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TokenAdministrationApi.V1.Boundary.Requests;
 using TokenAdministrationApi.V1.Boundary.Request;
 using TokenAdministrationApi.V1.Domain.Exceptions;
@@ -65,7 +64,7 @@ namespace TokenAdministrationApi.V1.Controllers
             }
             catch (LookupValueDoesNotExistException ex)
             {
-                return StatusCode(400, $"One or more of the lookup ids provided is incorrect - {ex.Message}");
+                return BadRequest(ex.Message);
             }
         }
 
@@ -84,5 +83,6 @@ namespace TokenAdministrationApi.V1.Controllers
 
             return NoContent();
         }
+
     }
 }

@@ -16,7 +16,7 @@ namespace TokenAdministrationApi.V1.UseCase
 
         public void Execute(int tokenId, UpdateTokenRequest request)
         {
-            var response = _tokensGateway.UpdateToken(tokenId, request.Enabled);
+            var response = _tokensGateway.UpdateToken(tokenId, request.Enabled.Value);
             if (response == null) throw new TokenRecordNotFoundException();
         }
     }

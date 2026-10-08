@@ -6,7 +6,6 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Bogus;
 using TokenAdministrationApi.V1.Boundary.Request;
 using TokenAdministrationApi.V1.Boundary.Requests;
@@ -24,7 +23,6 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
         private Mock<IPostTokenUseCase> _mockPostTokenUseCase;
         private Mock<IGetAllTokensUseCase> _mockGetAllTokensUseCase;
         private Mock<IUpdateTokenValidityUseCase> _updateTokenValidity;
-
 
         [SetUp]
         public void Setup()
@@ -135,13 +133,14 @@ namespace TokenAdministrationApi.Tests.V1.Controllers
         [Test]
         public void GenerateTokenMethodShouldReturn400IfGatewayThrowsLookupDoesNotExistException()
         {
-            var errorMessage = "foreign key violation message";
+            var errorMessage = "The selected API does not exist.";
             _mockPostTokenUseCase.Setup(x => x.Execute(It.IsAny<TokenRequestObject>())).Throws(new LookupValueDoesNotExistException(errorMessage));
-            var result = _classUnderTest.GenerateToken(It.IsAny<TokenRequestObject>()) as ObjectResult;
+            var result = _classUnderTest.GenerateToken(It.IsAny<TokenRequestObject>()) as BadRequestObjectResult;
 
             result.Should().NotBeNull();
             result.StatusCode.Should().Be(400);
-            result.Value.Should().Be("One or more of the lookup ids provided is incorrect - foreign key violation message");
+            result.Value.Should().Be(errorMessage);
         }
+
     }
 }

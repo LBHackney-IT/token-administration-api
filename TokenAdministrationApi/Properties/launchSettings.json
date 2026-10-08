@@ -15,7 +15,9 @@
       "launchUrl": "api/v1/healthcheck/ping",
       "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "jwtSecret": "this_is_a_very_long_secret_key_123456",
+        "CONNECTION_STRING": "Host=localhost;Port=5434;Database=devdb;Username=postgres;Password=mypassword"
       }
     }
   }
