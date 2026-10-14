@@ -17,8 +17,12 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
     public class PostTokenIntegrationTests : IntegrationTests<Startup>
     {
         private readonly Faker _faker = new Faker();
-        [Test]
-        public async Task CanGenerateAnAuthTokenAsync()
+        [TestCase("GET")]
+        [TestCase("POST")]
+        [TestCase("PUT")]
+        [TestCase("PATCH")]
+        [TestCase("DELETE")]
+        public async Task CanGenerateAnAuthTokenForSupportedHttpMethodAsync(string httpMethodType)
         {
             var (apiLookup, apiEndpointLookup, consumerTypeLookup) = AddLookupsToDatabase();
             var tokenRequest = new TokenRequestObject
@@ -28,7 +32,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
                 ExpiresAt = _faker.Date.Future(),
                 ApiEndpoint = apiEndpointLookup.Id,
                 ApiName = apiLookup.Id,
-                HttpMethodType = "GET",
+                HttpMethodType = httpMethodType,
                 AuthorizedBy = _faker.Person.Email,
                 Environment = _faker.Random.AlphaNumeric(5),
                 RequestedBy = _faker.Person.Email
@@ -55,6 +59,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             apiResponse.Should().BeOfType<GenerateTokenResponse>();
             apiResponse.GeneratedAt.Date.Should().Be(DateTime.Now.Date);
             apiResponse.ExpiresAt.Value.Should().BeSameDateAs(tokenRequest.ExpiresAt.Value);
+            DatabaseContext.Tokens.Find(apiResponse.Id).HttpMethodType.Should().Be(httpMethodType);
         }
         [Test]
         public async Task Return400IfRequestParametersAreMissing()
