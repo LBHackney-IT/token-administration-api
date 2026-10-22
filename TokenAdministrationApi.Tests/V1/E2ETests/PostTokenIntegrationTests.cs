@@ -22,6 +22,12 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
         [TestCase("PUT")]
         [TestCase("PATCH")]
         [TestCase("DELETE")]
+        [TestCase("get")]
+        [TestCase("post")]
+        [TestCase("put")]
+        [TestCase("patch")]
+        [TestCase("delete")]
+        [TestCase("Patch")]
         public async Task CanGenerateAnAuthTokenForSupportedHttpMethodAsync(string httpMethodType)
         {
             var (apiLookup, apiEndpointLookup, consumerTypeLookup) = AddLookupsToDatabase();
@@ -59,7 +65,8 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             apiResponse.Should().BeOfType<GenerateTokenResponse>();
             apiResponse.GeneratedAt.Date.Should().Be(DateTime.Now.Date);
             apiResponse.ExpiresAt.Value.Should().BeSameDateAs(tokenRequest.ExpiresAt.Value);
-            DatabaseContext.Tokens.Find(apiResponse.Id).HttpMethodType.Should().Be(httpMethodType);
+            DatabaseContext.Tokens.Find(apiResponse.Id).HttpMethodType.Should()
+                .Be(httpMethodType.ToUpper(CultureInfo.InvariantCulture));
         }
         [Test]
         public async Task Return400IfRequestParametersAreMissing()
@@ -125,11 +132,6 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
         }
         [TestCase("OPTIONS")]
         [TestCase("POP")]
-        [TestCase("get")]
-        [TestCase("post")]
-        [TestCase("put")]
-        [TestCase("patch")]
-        [TestCase("delete")]
         public async Task Return400WithValidationMessageIfHttpMethodTypeIsUnsupported(string httpMethodType)
         {
             var tokenRequest = new TokenRequestObject
