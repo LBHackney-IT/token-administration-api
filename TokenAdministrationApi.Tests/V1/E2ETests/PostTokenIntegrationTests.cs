@@ -125,6 +125,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
         }
         [TestCase("OPTIONS")]
         [TestCase("POP")]
+        [TestCase("get")]
         public async Task Return400WithValidationMessageIfHttpMethodTypeIsUnsupported(string httpMethodType)
         {
             var tokenRequest = new TokenRequestObject
