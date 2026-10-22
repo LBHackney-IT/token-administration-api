@@ -17,8 +17,18 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
     public class PostTokenIntegrationTests : IntegrationTests<Startup>
     {
         private readonly Faker _faker = new Faker();
-        [Test]
-        public async Task CanGenerateAnAuthTokenAsync()
+        [TestCase("GET")]
+        [TestCase("POST")]
+        [TestCase("PUT")]
+        [TestCase("PATCH")]
+        [TestCase("DELETE")]
+        [TestCase("get")]
+        [TestCase("post")]
+        [TestCase("put")]
+        [TestCase("patch")]
+        [TestCase("delete")]
+        [TestCase("Patch")]
+        public async Task CanGenerateAnAuthTokenForSupportedHttpMethodAsync(string httpMethodType)
         {
             var (apiLookup, apiEndpointLookup, consumerTypeLookup) = AddLookupsToDatabase();
             var tokenRequest = new TokenRequestObject
@@ -28,7 +38,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
                 ExpiresAt = _faker.Date.Future(),
                 ApiEndpoint = apiEndpointLookup.Id,
                 ApiName = apiLookup.Id,
-                HttpMethodType = "GET",
+                HttpMethodType = httpMethodType,
                 AuthorizedBy = _faker.Person.Email,
                 Environment = _faker.Random.AlphaNumeric(5),
                 RequestedBy = _faker.Person.Email
@@ -55,6 +65,8 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             apiResponse.Should().BeOfType<GenerateTokenResponse>();
             apiResponse.GeneratedAt.Date.Should().Be(DateTime.Now.Date);
             apiResponse.ExpiresAt.Value.Should().BeSameDateAs(tokenRequest.ExpiresAt.Value);
+            DatabaseContext.Tokens.Find(apiResponse.Id).HttpMethodType.Should()
+                .Be(httpMethodType.ToUpper(CultureInfo.InvariantCulture));
         }
         [Test]
         public async Task Return400IfRequestParametersAreMissing()
@@ -118,8 +130,9 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             content.Dispose();
             response.StatusCode.Should().Be(201);
         }
-        [Test]
-        public async Task Return400IfHttpMethodTypeSuppliedIsInvalid()
+        [TestCase("OPTIONS")]
+        [TestCase("POP")]
+        public async Task Return400WithValidationMessageIfHttpMethodTypeIsUnsupported(string httpMethodType)
         {
             var tokenRequest = new TokenRequestObject
             {
@@ -127,7 +140,7 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
                 ConsumerType = _faker.Random.Int(5),
                 ApiEndpoint = _faker.Random.Int(0, 10),
                 ApiName = _faker.Random.Int(0, 10),
-                HttpMethodType = "TEST",
+                HttpMethodType = httpMethodType,
                 AuthorizedBy = _faker.Person.Email,
                 Environment = _faker.Random.AlphaNumeric(5),
                 RequestedBy = _faker.Person.Email
@@ -137,7 +150,10 @@ namespace TokenAdministrationApi.Tests.V1.E2ETests
             var content = new StringContent(JsonConvert.SerializeObject(tokenRequest), Encoding.UTF8, "application/json");
             var response = await Client.PostAsync(url, content).ConfigureAwait(true);
             content.Dispose();
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
+
             response.StatusCode.Should().Be(400);
+            responseBody.Should().Contain("Please provide a valid HTTP method type");
         }
 
         [Test]
