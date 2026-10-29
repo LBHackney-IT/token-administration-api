@@ -343,6 +343,24 @@ jobs:
               echo "Deletion protection is still enabled."
               exit 1
             fi
+  release-lambda-enis-pre-production:
+    executor: docker-python
+    steps:
+      - *attach_workspace
+      - checkout
+      - run:
+          name: Install AWS CLI
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y unzip
+            curl -L -o awscliv2.zip "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+            aws --version
+      - run:
+          name: Release Lambda ENIs blocking security group deletion
+          no_output_timeout: 10m
+          command: python3 scripts/teardown/release-lambda-enis.py --timeout-seconds 300
   terraform-destroy-pre-production:
     executor: docker-terraform
     steps:
@@ -620,9 +638,16 @@ workflows:
           filters:
             branches:
               only: feat/ssi-1369-teardown-pre-production
+      - release-lambda-enis-pre-production:
+          requires:
+            - permit-pre-production-terraform-destroy
+          filters:
+            branches:
+              only: feat/ssi-1369-teardown-pre-production
       - terraform-destroy-pre-production:
           requires:
             - disable-rds-deletion-protection-pre-production
+            - release-lambda-enis-pre-production
           filters:
             branches:
               only: feat/ssi-1369-teardown-pre-production

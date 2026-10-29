@@ -16,4 +16,9 @@ resource "aws_security_group" "lambda_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Used when no Lambda ENI matches the provider's forced 45 minute waiter.
+  # Lambda ENIs are released before destroy so this delete stays on the short timeout.
+  timeouts {
+    delete = "5m"
+  }
 }
