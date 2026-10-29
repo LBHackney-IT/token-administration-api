@@ -9,6 +9,8 @@ still holding it.
 
 import argparse
 import json
+import os
+import pathlib
 import subprocess
 import sys
 import time
@@ -164,6 +166,16 @@ def release_network_interface(eni, security_group_id):
         )
 
 
+def write_action(action, details):
+    path = os.environ.get("SECURITY_GROUP_ACTION_PATH")
+    if not path:
+        return
+    destination = pathlib.Path(path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    lines = [action, *details]
+    destination.write_text("\n".join(lines) + "\n")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--serverless-yml", default="TokenAdministrationApi/serverless.yml")
@@ -179,20 +191,22 @@ def main():
     if not args.function_name.startswith(OUR_FUNCTION_PREFIX):
         raise RuntimeError(f"Refusing to delete unexpected function {args.function_name}")
 
-    if not network_interfaces(security_group_id):
-        print(f"No ENIs are attached to {security_group_id}")
-        delete_our_function(args.function_name)
-        return 0
-
+    delete_our_function(args.function_name)
     holders = functions_using_security_group(security_group_id)
     foreign = [holder for holder in holders if not holder.startswith(args.function_name + ":")]
-    ours = [holder for holder in holders if holder.startswith(args.function_name + ":")]
-    if ours:
-        print(f"{security_group_id} is used by {', '.join(ours)}")
-    delete_our_function(args.function_name)
     if foreign:
-        print(f"{security_group_id} is still used by other Lambda functions: {', '.join(foreign)}")
-        return 1
+        print(
+            f"{security_group_id} stays in AWS. Other Lambda functions still use it: {', '.join(foreign)}"
+        )
+        write_action("retain", foreign)
+        return 0
+
+    if not network_interfaces(security_group_id):
+        print(f"No ENIs are attached to {security_group_id}")
+        write_action("destroy", [])
+        return 0
+
+    write_action("destroy", [])
 
     deadline = time.time() + args.timeout_seconds
     while True:

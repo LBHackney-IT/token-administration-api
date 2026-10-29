@@ -112,7 +112,14 @@ commands:
             terraform init
             echo "Resources currently in state:"
             terraform state list
-            echo "Destroying this state also deletes /platform-apis-jump-box-pem-key and /platform-apis-jump-box-instance-name if they are still managed here. The database module skips a final snapshot."
+            if [ -f "$HOME/teardown/security-group-action" ] && [ "$(head -n 1 "$HOME/teardown/security-group-action")" = "retain" ]; then
+              echo "Leaving the Lambda security group in AWS because other functions still use it:"
+              cat "$HOME/teardown/security-group-action"
+              if terraform state list | grep -qx 'aws_security_group.lambda_sg'; then
+                terraform state rm aws_security_group.lambda_sg
+              fi
+            fi
+            echo "Review the plan. Jump box SSM parameters are included when they are still in state. The database module skips a final snapshot."
             terraform plan -destroy -input=false -out=destroy.plan
             mkdir -p ~/destroy-plan
             cp destroy.plan ~/destroy-plan/destroy.plan
@@ -360,7 +367,14 @@ jobs:
       - run:
           name: Release Lambda ENIs blocking security group deletion
           no_output_timeout: 10m
-          command: python3 scripts/teardown/release-lambda-enis.py --timeout-seconds 300
+          command: |
+            export SECURITY_GROUP_ACTION_PATH="$HOME/teardown/security-group-action"
+            python3 scripts/teardown/release-lambda-enis.py --timeout-seconds 300
+      - persist_to_workspace:
+          root: *workspace_root
+          paths:
+            - .aws
+            - teardown/security-group-action
   terraform-destroy-pre-production:
     executor: docker-terraform
     steps:
@@ -619,9 +633,15 @@ workflows:
           filters:
             branches:
               only: feat/ssi-1369-teardown-pre-production
-      - terraform-destroy-plan-pre-production:
+      - release-lambda-enis-pre-production:
           requires:
             - remove-serverless-pre-production
+          filters:
+            branches:
+              only: feat/ssi-1369-teardown-pre-production
+      - terraform-destroy-plan-pre-production:
+          requires:
+            - release-lambda-enis-pre-production
           filters:
             branches:
               only: feat/ssi-1369-teardown-pre-production
@@ -638,16 +658,9 @@ workflows:
           filters:
             branches:
               only: feat/ssi-1369-teardown-pre-production
-      - release-lambda-enis-pre-production:
-          requires:
-            - permit-pre-production-terraform-destroy
-          filters:
-            branches:
-              only: feat/ssi-1369-teardown-pre-production
       - terraform-destroy-pre-production:
           requires:
             - disable-rds-deletion-protection-pre-production
-            - release-lambda-enis-pre-production
           filters:
             branches:
               only: feat/ssi-1369-teardown-pre-production
