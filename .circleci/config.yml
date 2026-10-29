@@ -333,13 +333,19 @@ jobs:
             aws rds describe-db-instances --region "$REGION" --query "DBInstances[].DBInstanceIdentifier" --output text
             IDS=$(aws rds describe-db-instances --region "$REGION" --query "DBInstances[?contains(DBInstanceIdentifier, 'auth-token-generator')].DBInstanceIdentifier" --output text)
             if [ -z "$IDS" ] || [ "$IDS" = "None" ]; then
-              echo "No auth-token-generator database found."
-              exit 1
+              echo "No auth-token-generator database found. Deletion protection is already done."
+              exit 0
             fi
             COUNT=$(printf '%s\n' "$IDS" | wc -w)
             if [ "$COUNT" -ne 1 ]; then
               echo "Expected exactly one auth-token-generator database, found: $IDS"
               exit 1
+            fi
+            PROT=$(aws rds describe-db-instances --region "$REGION" --db-instance-identifier "$IDS" --query "DBInstances[0].DeletionProtection" --output text)
+            echo "DeletionProtection=$PROT"
+            if [ "$PROT" = "False" ]; then
+              echo "Deletion protection is already disabled on $IDS"
+              exit 0
             fi
             echo "Disabling deletion protection on $IDS"
             aws rds modify-db-instance --region "$REGION" --db-instance-identifier "$IDS" --no-deletion-protection --apply-immediately
